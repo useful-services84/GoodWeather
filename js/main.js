@@ -27,6 +27,7 @@
         loadingUI.style.display = 'none';
         forecastContent.style.display = 'block';
         errorUI.style.display = 'none';
+        updateProxyStatus();
     }
 
     function showError(msg) {
@@ -34,13 +35,13 @@
         forecastContent.style.display = 'none';
         errorUI.style.display = 'flex';
         errorText.textContent = msg || 'Неизвестная ошибка';
+        updateProxyStatus();
     }
 
     function updateUI(data, locationInfo) {
         const current = data.current;
         const daily = data.daily;
         
-        // Шапка
         cityDisplay.textContent = locationInfo.main;
         regionDisplay.textContent = locationInfo.region;
         coordsDisplay.textContent = `${currentLat.toFixed(4)}°, ${currentLon.toFixed(4)}°`;
@@ -49,12 +50,10 @@
         tempDisplay.textContent = `${Math.round(current.temperature_2m)}°C`;
         descDisplay.textContent = `${getWeatherEmoji(weatherCode)} ${getWeatherDescription(weatherCode)}`;
         
-        // Точное локальное время обновления
         updateTimeDisplay.textContent = `Обновлено: ${getCurrentTimeString()}`;
         
         updateBackground(weatherCode);
         
-        // Прогноз
         forecastScroll.innerHTML = '';
         
         for (let i = 0; i < daily.time.length; i++) {
@@ -97,9 +96,13 @@
         }
     }
 
+    // Глобальная функция для меню
+    window.loadWeatherData = loadWeatherData;
+
     document.getElementById('refreshBtn').addEventListener('click', loadWeatherData);
     document.getElementById('errorRetryBtn').addEventListener('click', loadWeatherData);
 
+    initMenu();
     loadWeatherData();
 
     setInterval(() => {

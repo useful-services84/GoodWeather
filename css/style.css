@@ -30,18 +30,15 @@ body {
     will-change: background-image;
 }
 
-/* Затемнение поверх фона */
-.app-container::before {
+/* Затемнение — без размытия */
+.weather-background::after {
     content: '';
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
-    z-index: 1;
+    background: rgba(0, 0, 0, 0.35);
     pointer-events: none;
 }
 
@@ -57,14 +54,117 @@ body {
 
 /* Шапка */
 .app-header {
-    padding: 1.5rem 1.5rem 0.75rem;
+    padding: 1rem 1.5rem 0.75rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     background: transparent;
+}
+
+.header-top-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Кнопка меню */
+.menu-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.menu-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.menu-btn svg {
+    opacity: 0.8;
+}
+
+/* Выпадающее меню */
+.menu-dropdown {
+    position: absolute;
+    top: 70px;
+    left: 1.5rem;
+    background: rgba(20, 30, 40, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 0.5rem;
+    min-width: 220px;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.menu-dropdown.show {
+    display: block;
+}
+
+.menu-section {
+    padding: 0.5rem;
+}
+
+.menu-section-title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.5;
+    margin-bottom: 0.5rem;
+    font-weight: 450;
+}
+
+.menu-item {
+    padding: 0.6rem 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.menu-item.active {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.menu-item .check {
+    margin-left: auto;
+    opacity: 0;
+    color: #4facfe;
+}
+
+.menu-item.active .check {
+    opacity: 1;
+}
+
+.proxy-status {
+    font-size: 0.75rem;
+    opacity: 0.5;
+    padding: 0.5rem 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 0.25rem;
 }
 
 .header-content {
     max-width: 900px;
     margin: 0 auto;
+    width: 100%;
 }
 
 .location-row {
@@ -387,9 +487,10 @@ body {
 
 /* Адаптация */
 @media (max-width: 600px) {
-    .app-header { padding: 1rem 1rem 0.5rem; }
+    .app-header { padding: 0.75rem 1rem 0.5rem; }
     .content-area { padding: 1rem; }
     .tabs-container { padding: 0 1rem; }
+    .menu-dropdown { left: 1rem; top: 60px; }
     
     .city-name { font-size: 1.8rem; }
     .temp-current { font-size: 2.8rem; }

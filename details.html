@@ -15,6 +15,41 @@
     <div class="app-container">
         <!-- Шапка -->
         <header class="app-header">
+            <div class="header-top-row">
+                <button class="menu-btn" id="menuBtn" title="Меню">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+                <div style="flex: 1;"></div>
+            </div>
+            
+            <!-- Выпадающее меню -->
+            <div class="menu-dropdown" id="menuDropdown">
+                <div class="menu-section">
+                    <div class="menu-section-title">Прокси</div>
+                    <div class="menu-item" data-proxy="auto">
+                        <span>🔄 Автоматически</span>
+                        <span class="check">✓</span>
+                    </div>
+                    <div class="menu-item" data-proxy="none">
+                        <span>➖ Без прокси</span>
+                        <span class="check">✓</span>
+                    </div>
+                    <div class="menu-item" data-proxy="allorigins">
+                        <span>🌐 AllOrigins</span>
+                        <span class="check">✓</span>
+                    </div>
+                    <div class="menu-item" data-proxy="thingproxy">
+                        <span>⚡ ThingProxy</span>
+                        <span class="check">✓</span>
+                    </div>
+                </div>
+                <div class="proxy-status" id="proxyStatus">Режим: Авто</div>
+            </div>
+
             <div class="header-content">
                 <div class="location-row">
                     <h1 class="city-name" id="cityDisplay">—</h1>
