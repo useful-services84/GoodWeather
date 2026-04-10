@@ -61,8 +61,8 @@
         tempDisplay.textContent = `${Math.round(current.temperature_2m)}°C`;
         descDisplay.textContent = `${getWeatherEmoji(weatherCode)} ${getWeatherDescription(weatherCode)}`;
         
-        const updateTime = current.time ? new Date(current.time) : new Date();
-        updateTimeDisplay.textContent = `Обновлено: ${updateTime.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
+        // Точное локальное время обновления
+        updateTimeDisplay.textContent = `Обновлено: ${getCurrentTimeString()}`;
         
         updateBackground(weatherCode);
         

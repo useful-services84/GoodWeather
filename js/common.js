@@ -11,6 +11,9 @@ const WEATHER_BG_MAP = {
     default: 'img/default.jpg'
 };
 
+// Прокси для обхода CORS и возможных блокировок
+const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+
 function getWeatherCategory(code) {
     if (code === 0) return 'clear';
     if (code === 1 || code === 2) return 'partly_cloudy';
@@ -102,11 +105,12 @@ async function requestLocation() {
 }
 
 async function reverseGeocode(lat, lon) {
+    // Используем прокси для Nominatim
     const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=ru`;
+    const proxyUrl = CORS_PROXY + encodeURIComponent(url);
+    
     try {
-        const response = await fetch(url, {
-            headers: { 'User-Agent': 'GoodWitherApp/1.0' }
-        });
+        const response = await fetch(proxyUrl);
         if (!response.ok) throw new Error('Ошибка геокодирования');
         const data = await response.json();
         
@@ -121,6 +125,7 @@ async function reverseGeocode(lat, lon) {
             fullDisplay: data.display_name || `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`
         };
     } catch (e) {
+        console.warn('Ошибка геокодирования:', e);
         return {
             main: 'Местоположение',
             region: '',
@@ -140,9 +145,21 @@ async function fetchWeatherData(lat, lon) {
     });
 
     const url = `https://api.open-meteo.com/v1/dwd-icon?${params.toString()}`;
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`Ошибка API: ${response.status}`);
-    return await response.json();
+    
+    try {
+        // Пробуем прямой запрос
+        const response = await fetch(url);
+        if (response.ok) return await response.json();
+        
+        // Если не удалось, пробуем через прокси
+        console.log('Прямой запрос не удался, пробуем через прокси...');
+        const proxyResponse = await fetch(CORS_PROXY + encodeURIComponent(url));
+        if (!proxyResponse.ok) throw new Error(`Ошибка API: ${proxyResponse.status}`);
+        return await proxyResponse.json();
+    } catch (error) {
+        console.error('Ошибка при запросе погоды:', error);
+        throw error;
+    }
 }
 
 function hPaToMmHg(hPa) {
@@ -152,4 +169,10 @@ function hPaToMmHg(hPa) {
 function formatTime(isoString) {
     const date = new Date(isoString);
     return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+}
+
+// Функция для получения точного локального времени
+function getCurrentTimeString() {
+    const now = new Date();
+    return now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 }
