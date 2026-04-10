@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>GoodWither · Подробности</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="weather-background" id="bgLayer"></div>
+
+    <div class="app-container">
+        <!-- Шапка -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="location-row">
+                    <h1 class="city-name" id="cityDisplay">—</h1>
+                    <span class="region-name" id="regionDisplay"></span>
+                </div>
+                <div class="coordinates" id="coordsDisplay"></div>
+                
+                <div class="weather-status-row">
+                    <span class="temp-current" id="tempDisplay">--°</span>
+                    <span class="weather-desc" id="descDisplay">---</span>
+                    <span class="update-badge" id="updateTimeDisplay"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Навигация -->
+        <div class="tabs-container">
+            <div class="tabs">
+                <a href="index.html" class="tab-btn">Прогноз на неделю</a>
+                <a href="details.html" class="tab-btn active">Подробности</a>
+            </div>
+        </div>
+
+        <!-- Контент -->
+        <main class="content-area">
+            <div id="loadingUI" class="status-message">
+                <div class="loader"></div>
+                <p>Загружаем подробные данные…</p>
+            </div>
+
+            <div id="detailsContent" class="details-section">
+                <div class="details-grid">
+                    <div class="detail-card">
+                        <div class="detail-label">Ощущается как</div>
+                        <div class="detail-value">
+                            <span id="feelsLikeDisplay">--</span><span class="detail-unit">°C</span>
+                        </div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-label">Влажность</div>
+                        <div class="detail-value">
+                            <span id="humidityDisplay">--</span><span class="detail-unit">%</span>
+                        </div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-label">Скорость ветра</div>
+                        <div class="detail-value">
+                            <span id="windSpeedDisplay">--</span><span class="detail-unit">м/с</span>
+                        </div>
+                        <div class="detail-sub" id="windDirDisplay"></div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-label">Порывы ветра</div>
+                        <div class="detail-value">
+                            <span id="windGustDisplay">--</span><span class="detail-unit">м/с</span>
+                        </div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-label">Облачность</div>
+                        <div class="detail-value">
+                            <span id="cloudDisplay">--</span><span class="detail-unit">%</span>
+                        </div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-label">Видимость</div>
+                        <div class="detail-value">
+                            <span id="visibilityDisplay">--</span><span class="detail-unit">км</span>
+                        </div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-label">УФ-индекс</div>
+                        <div class="detail-value">
+                            <span id="uvDisplay">--</span>
+                        </div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-label">Давление</div>
+                        <div class="detail-value">
+                            <span id="pressureDisplay">--</span><span class="detail-unit">мм рт.ст.</span>
+                        </div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-label">Осадки</div>
+                        <div class="detail-value">
+                            <span id="precipDisplay">--</span><span class="detail-unit">мм</span>
+                        </div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-label">Восход</div>
+                        <div class="detail-value">
+                            <span id="sunriseDisplay">--:--</span>
+                        </div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-label">Закат</div>
+                        <div class="detail-value">
+                            <span id="sunsetDisplay">--:--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="errorUI" class="status-message error" style="display: none;">
+                <p>Не удалось загрузить данные</p>
+                <p id="errorText"></p>
+                <button class="retry-btn" id="errorRetryBtn">Попробовать снова</button>
+            </div>
+        </main>
+    </div>
+
+    <button class="refresh-btn" id="refreshBtn" title="Обновить">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+    </button>
+
+    <script src="js/common.js"></script>
+    <script src="js/details.js"></script>
+</body>
+</html>
