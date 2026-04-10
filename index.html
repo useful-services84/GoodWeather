@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Прогноз погоды · Саратовская область</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #0b1a2a; /* fallback */
+            transition: background-color 0.4s ease;
+        }
+
+        /* Фоновый слой — изображения будут подставляться через data-weather атрибут */
+        .weather-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: -2;
+            transition: background-image 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+            will-change: background-image;
+        }
+
+        /* Затемнение для читаемости текста (лёгкое, настраивается) */
+        .weather-background::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(2px);
+            z-index: -1;
+        }
+
+        /* Основная карточка */
+        .weather-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 40px;
+            padding: 2rem 2.2rem;
+            box-shadow: 0 25px 40px -10px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            margin: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.25s ease;
+            color: #1e293b;
+        }
+
+        /* Заголовок и местоположение */
+        .location-section {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding-bottom: 1rem;
+        }
+
+        .city-name {
+            font-size: 2.2rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        .region-name {
+            font-size: 1rem;
+            opacity: 0.7;
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        .coordinates {
+            font-size: 0.85rem;
+            opacity: 0.6;
+            margin-top: 8px;
+            font-family: monospace;
+        }
+
+        /* Текущая погода */
+        .weather-main {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin: 1.8rem 0 1.2rem;
+        }
+
+        .temp-current {
+            font-size: 5rem;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .weather-desc {
+            font-size: 1.4rem;
+            font-weight: 500;
+            text-align: right;
+        }
+
+        /* Сетка с деталями */
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px 20px;
+            margin: 24px 0 16px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.6;
+        }
+
+        .detail-value {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        /* Обновление */
+        .update-info {
+            font-size: 0.8rem;
+            text-align: right;
+            opacity: 0.6;
+            margin-top: 8px;
+        }
+
+        /* Ошибки / загрузка */
+        .status-message {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+        }
+
+        .error {
+            color: #b91c1c;
+            background: rgba(255, 235, 235, 0.7);
+            border-radius: 30px;
+        }
+
+        button.refresh-btn {
+            background: rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.5);
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            color: #1e293b;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+
+        button.refresh-btn:hover {
+            background: rgba(255,255,255,0.6);
+        }
+
+        /* Адаптация */
+        @media (max-width: 480px) {
+            .weather-card { padding: 1.5rem; }
+            .temp-current { font-size: 4rem; }
+            .weather-desc { font-size: 1.2rem; }
+            .city-name { font-size: 1.8rem; }
+        }
+
+        /* Индикатор загрузки */
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: #1e293b;
+            animation: spin 0.8s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <!-- Динамический фон: картинка подставляется через CSS -->
+    <div class="weather-background" id="bgLayer"></div>
+
+    <!-- Основная карточка -->
+    <main class="weather-card" id="weatherCard">
+        <div id="loadingUI" class="status-message">
+            <div class="loader"></div>
+            <p>Определяем местоположение…</p>
+        </div>
+
+        <div id="weatherContent" style="display: none;">
+            <div class="location-section">
+                <div class="city-name" id="cityDisplay">—</div>
+                <div class="region-name" id="regionDisplay"></div>
+                <div class="coordinates" id="coordsDisplay"></div>
+            </div>
+
+            <div class="weather-main">
+                <span class="temp-current" id="tempDisplay">--°</span>
+                <span class="weather-desc" id="descDisplay">---</span>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Ощущается как</span>
+                    <span class="detail-value" id="feelsLikeDisplay">--°</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Влажность</span>
+                    <span class="detail-value" id="humidityDisplay">--%</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Ветер</span>
+                    <span class="detail-value" id="windDisplay">-- м/с</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Облачность</span>
+                    <span class="detail-value" id="cloudDisplay">--%</span>
+                </div>
+            </div>
+
+            <div class="update-info" id="updateTimeDisplay"></div>
+            <div style="display: flex; justify-content: center;">
+                <button class="refresh-btn" id="refreshBtn">⟳ Обновить</button>
+            </div>
+        </div>
+
+        <div id="errorUI" class="status-message error" style="display: none;">
+            <p>⚠️</p>
+            <p id="errorText">Не удалось загрузить данные</p>
+            <button class="refresh-btn" id="errorRetryBtn">Попробовать снова</button>
+        </div>
+    </main>
+
+    <script>
+        (function(){
+            "use strict";
+
+            // ---------- КОНФИГУРАЦИЯ ----------
+            // Здесь вы можете указать свои изображения для разных кодов погоды
+            // WMO Weather interpretation codes (ICON)
+            // Основные группы: ясно, облачно, дождь, снег, гроза, туман.
+            // При отсутствии картинки — fallback на градиент.
+            const WEATHER_BG_MAP = {
+                // Ясно (Clear sky)
+                clear: 'img/clear.jpg',
+                // Малооблачно / переменная облачность (mainly clear, partly cloudy)
+                partly_cloudy: 'img/partly-cloudy.jpg',
+                // Облачно / пасмурно (cloudy, overcast)
+                cloudy: 'img/cloudy.jpg',
+                // Туман (fog)
+                fog: 'img/fog.jpg',
+                // Дождь, морось (drizzle, rain)
+                rain: 'img/rain.jpg',
+                // Снег (snow)
+                snow: 'img/snow.jpg',
+                // Гроза (thunderstorm)
+                thunderstorm: 'img/thunderstorm.jpg',
+                // Универсальный фон (fallback)
+                default: 'img/default.jpg'
+            };
+
+            // Группировка кодов WMO по категориям для подстановки картинок
+            function getWeatherCategory(code) {
+                if (code === 0) return 'clear';                // Clear sky
+                if (code === 1 || code === 2) return 'partly_cloudy'; // Mainly clear, partly cloudy
+                if (code === 3) return 'cloudy';               // Overcast
+                if (code >= 45 && code <= 48) return 'fog';     // Fog and depositing rime fog
+                if (code >= 51 && code <= 67) return 'rain';    // Drizzle, Rain, Freezing rain
+                if (code >= 71 && code <= 77) return 'snow';    // Snow fall
+                if (code >= 80 && code <= 82) return 'rain';    // Rain showers
+                if (code >= 85 && code <= 86) return 'snow';    // Snow showers
+                if (code >= 95) return 'thunderstorm';         // Thunderstorm
+                if (code === 4) return 'fog';                  // Visibility reduced by smoke (условно)
+                return 'default';
+            }
+
+            // DOM элементы
+            const bgLayer = document.getElementById('bgLayer');
+            const loadingUI = document.getElementById('loadingUI');
+            const weatherContent = document.getElementById('weatherContent');
+            const errorUI = document.getElementById('errorUI');
+            const errorText = document.getElementById('errorText');
+
+            const cityDisplay = document.getElementById('cityDisplay');
+            const regionDisplay = document.getElementById('regionDisplay');
+            const coordsDisplay = document.getElementById('coordsDisplay');
+            const tempDisplay = document.getElementById('tempDisplay');
+            const descDisplay = document.getElementById('descDisplay');
+            const feelsLikeDisplay = document.getElementById('feelsLikeDisplay');
+            const humidityDisplay = document.getElementById('humidityDisplay');
+            const windDisplay = document.getElementById('windDisplay');
+            const cloudDisplay = document.getElementById('cloudDisplay');
+            const updateTimeDisplay = document.getElementById('updateTimeDisplay');
+
+            const refreshBtn = document.getElementById('refreshBtn');
+            const errorRetryBtn = document.getElementById('errorRetryBtn');
+
+            let currentLat = null;
+            let currentLon = null;
+            let currentWeatherCode = 0;
+
+            // ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
+            function showLoading() {
+                loadingUI.style.display = 'block';
+                weatherContent.style.display = 'none';
+                errorUI.style.display = 'none';
+            }
+
+            function showContent() {
+                loadingUI.style.display = 'none';
+                weatherContent.style.display = 'block';
+                errorUI.style.display = 'none';
+            }
+
+            function showError(msg) {
+                loadingUI.style.display = 'none';
+                weatherContent.style.display = 'none';
+                errorUI.style.display = 'block';
+                errorText.textContent = msg || 'Неизвестная ошибка';
+            }
+
+            // Обновление фона через data-атрибут или backgroundImage
+            function updateBackground(code) {
+                const category = getWeatherCategory(code);
+                const imageUrl = WEATHER_BG_MAP[category] || WEATHER_BG_MAP.default;
+                
+                // Пытаемся загрузить изображение, если путь указан и файл существует
+                // Используем прямое присвоение background-image
+                if (imageUrl) {
+                    bgLayer.style.backgroundImage = `url('${imageUrl}')`;
+                } else {
+                    // Если нет картинки, ставим цвет в зависимости от категории
+                    const fallbackColors = {
+                        clear: 'linear-gradient(145deg, #4facfe 0%, #00f2fe 100%)',
+                        partly_cloudy: 'linear-gradient(145deg, #6b8cce 0%, #b8c6db 100%)',
+                        cloudy: 'linear-gradient(145deg, #5f6c7a 0%, #919ba7 100%)',
+                        fog: 'linear-gradient(145deg, #b0bec5 0%, #cfd8dc 100%)',
+                        rain: 'linear-gradient(145deg, #3a4e6b 0%, #5f7a9f 100%)',
+                        snow: 'linear-gradient(145deg, #e0eaf5 0%, #b0c4de 100%)',
+                        thunderstorm: 'linear-gradient(145deg, #2c3e50 0%, #4a6274 100%)',
+                        default: 'linear-gradient(145deg, #2b5876 0%, #4e4376 100%)'
+                    };
+                    bgLayer.style.backgroundImage = fallbackColors[category] || fallbackColors.default;
+                }
+                currentWeatherCode = code;
+            }
+
+            // Преобразование WMO кода в текст (русский)
+            function getWeatherDescription(code) {
+                const map = {
+                    0: 'Ясно',
+                    1: 'Преимущественно ясно',
+                    2: 'Переменная облачность',
+                    3: 'Пасмурно',
+                    45: 'Туман',
+                    48: 'Изморозь',
+                    51: 'Лёгкая морось',
+                    53: 'Морось',
+                    55: 'Сильная морось',
+                    56: 'Лёгкая морось (ледяная)',
+                    57: 'Морось (ледяная)',
+                    61: 'Небольшой дождь',
+                    63: 'Дождь',
+                    65: 'Сильный дождь',
+                    66: 'Ледяной дождь (слабый)',
+                    67: 'Ледяной дождь (сильный)',
+                    71: 'Небольшой снег',
+                    73: 'Снег',
+                    75: 'Сильный снег',
+                    77: 'Снежные зёрна',
+                    80: 'Ливень (слабый)',
+                    81: 'Ливень',
+                    82: 'Сильный ливень',
+                    85: 'Снегопад (слабый)',
+                    86: 'Снегопад',
+                    95: 'Гроза',
+                    96: 'Гроза с градом',
+                    99: 'Сильная гроза'
+                };
+                return map[code] || 'Неизвестно';
+            }
+
+            // Запрос геолокации
+            function requestLocation() {
+                return new Promise((resolve, reject) => {
+                    if (!navigator.geolocation) {
+                        reject(new Error('Геолокация не поддерживается браузером'));
+                        return;
+                    }
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                            resolve({
+                                lat: pos.coords.latitude,
+                                lon: pos.coords.longitude
+                            });
+                        },
+                        (err) => {
+                            let msg = 'Не удалось получить геолокацию.';
+                            if (err.code === 1) msg = 'Доступ к геолокации запрещён.';
+                            else if (err.code === 2) msg = 'Местоположение недоступно.';
+                            else if (err.code === 3) msg = 'Истекло время ожидания.';
+                            reject(new Error(msg));
+                        },
+                        { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 }
+                    );
+                });
+            }
+
+            // Обратное геокодирование через Nominatim (OpenStreetMap)
+            async function reverseGeocode(lat, lon) {
+                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=ru`;
+                try {
+                    const response = await fetch(url, {
+                        headers: { 'User-Agent': 'WeatherApp_Saratov/1.0 (your-email@example.com)' } // Укажите свой контакт
+                    });
+                    if (!response.ok) throw new Error('Ошибка геокодирования');
+                    const data = await response.json();
+                    
+                    const address = data.address || {};
+                    // Приоритет: город / посёлок / деревня
+                    const city = address.city || address.town || address.village || address.municipality || '';
+                    const state = address.state || address.region || '';
+                    const country = address.country || '';
+                    
+                    // Формируем строки
+                    const mainName = city || address.county || address.state_district || 'Неизвестный населённый пункт';
+                    const regionStr = [state, country].filter(Boolean).join(', ');
+                    
+                    return {
+                        main: mainName,
+                        region: regionStr,
+                        fullDisplay: data.display_name || `${lat.toFixed(4)}, ${lon.toFixed(4)}`
+                    };
+                } catch (e) {
+                    console.warn('Ошибка reverse geocode:', e);
+                    return {
+                        main: 'Местоположение',
+                        region: '',
+                        fullDisplay: `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`
+                    };
+                }
+            }
+
+            // Получение погоды по Open-Meteo DWD ICON
+            async function fetchWeather(lat, lon) {
+                // Используем модель DWD ICON (немецкая) – эндпоинт /v1/dwd-icon
+                const params = new URLSearchParams({
+                    latitude: lat,
+                    longitude: lon,
+                    current: 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m',
+                    timezone: 'auto',
+                    forecast_days: 1
+                });
+
+                const url = `https://api.open-meteo.com/v1/dwd-icon?${params.toString()}`;
+                
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Ошибка API: ${response.status}`);
+                const data = await response.json();
+                
+                const current = data.current;
+                if (!current) throw new Error('Нет данных о текущей погоде');
+                
+                return {
+                    temp: Math.round(current.temperature_2m),
+                    feelsLike: Math.round(current.apparent_temperature),
+                    humidity: Math.round(current.relative_humidity_2m),
+                    weatherCode: current.weather_code,
+                    cloudCover: current.cloud_cover != null ? Math.round(current.cloud_cover) : '—',
+                    windSpeed: current.wind_speed_10m?.toFixed(1) || '—',
+                    time: current.time
+                };
+            }
+
+            // Основной поток: гео -> reverse geocode -> погода
+            async function loadWeatherData() {
+                showLoading();
+                try {
+                    // 1. Геолокация
+                    const pos = await requestLocation();
+                    currentLat = pos.lat;
+                    currentLon = pos.lon;
+
+                    // 2. Обратное геокодирование (название)
+                    const locationInfo = await reverseGeocode(currentLat, currentLon);
+                    
+                    // 3. Погода ICON
+                    const weather = await fetchWeather(currentLat, currentLon);
+                    
+                    // 4. Отображение
+                    cityDisplay.textContent = locationInfo.main;
+                    regionDisplay.textContent = locationInfo.region;
+                    coordsDisplay.textContent = `${currentLat.toFixed(4)}°, ${currentLon.toFixed(4)}°`;
+                    
+                    tempDisplay.textContent = `${weather.temp}°C`;
+                    descDisplay.textContent = getWeatherDescription(weather.weatherCode);
+                    feelsLikeDisplay.textContent = `${weather.feelsLike}°C`;
+                    humidityDisplay.textContent = `${weather.humidity}%`;
+                    
+                    const windVal = weather.windSpeed !== '—' ? weather.windSpeed : '—';
+                    windDisplay.textContent = `${windVal} м/с`;
+                    
+                    cloudDisplay.textContent = weather.cloudCover !== '—' ? `${weather.cloudCover}%` : '—';
+                    
+                    const updateTime = weather.time ? new Date(weather.time) : new Date();
+                    updateTimeDisplay.textContent = `Обновлено: ${updateTime.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
+                    
+                    // Фон
+                    updateBackground(weather.weatherCode);
+                    
+                    showContent();
+                } catch (error) {
+                    console.error(error);
+                    let message = error.message;
+                    if (message.includes('geolocation') || message.includes('Геолокация')) {
+                        message = 'Не удалось определить местоположение. Разрешите доступ к геоданным.';
+                    } else if (message.includes('fetch')) {
+                        message = 'Ошибка сети или сервера погоды.';
+                    }
+                    showError(message);
+                    
+                    // fallback фон
+                    bgLayer.style.backgroundImage = 'linear-gradient(145deg, #1e3c72, #2a5298)';
+                }
+            }
+
+            // Обработчики
+            refreshBtn.addEventListener('click', () => {
+                loadWeatherData();
+            });
+            
+            errorRetryBtn.addEventListener('click', () => {
+                loadWeatherData();
+            });
+
+            // Запуск
+            loadWeatherData();
+
+            // (Опционально) Автообновление раз в 20 минут
+            setInterval(() => {
+                if (currentLat && currentLon) {
+                    // Тихо обновить, если контент видим
+                    if (weatherContent.style.display === 'block') {
+                        loadWeatherData();
+                    }
+                }
+            }, 20 * 60 * 1000);
+        })();
+    </script>
+</body>
+</html>
