@@ -11,7 +11,7 @@ const WEATHER_BG_MAP = {
     default: 'img/default.jpg'
 };
 
-// API через Cloudflare Worker — точный URL, который работал
+// Ваш Cloudflare Worker
 const API_BASE_URL = 'https://vpn.matvey-gadackiy2011.workers.dev/v1/dwd-icon';
 
 // Тема
@@ -146,7 +146,6 @@ async function fetchWeatherData(lat, lon) {
     });
 
     const url = `${API_BASE_URL}?${params.toString()}`;
-    console.log('Fetching:', url); // Для отладки
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Ошибка API: ${response.status}`);
     return await response.json();
@@ -157,7 +156,6 @@ function hPaToMmHg(hPa) {
 }
 
 function formatTime(isoString) {
-    if (!isoString) return '--:--';
     const date = new Date(isoString);
     return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 }
@@ -180,10 +178,7 @@ function initTheme() {
 function toggleTheme() {
     currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('theme', currentTheme);
-    
-    document.body.classList.toggle('light-theme', currentTheme === 'light');
-    localStorage.setItem('theme_sync', Date.now());
-    
+    initTheme();
     updateThemeMenu();
 }
 
@@ -219,6 +214,7 @@ function initMenu() {
         e.stopPropagation();
     });
     
+    // Обработчики темы
     const themeItems = document.querySelectorAll('.menu-item[data-theme]');
     themeItems.forEach(item => {
         item.addEventListener('click', () => {
@@ -232,15 +228,6 @@ function initMenu() {
     
     updateThemeMenu();
 }
-
-// Слушаем изменения темы из других вкладок
-window.addEventListener('storage', (e) => {
-    if (e.key === 'theme') {
-        currentTheme = e.newValue || 'dark';
-        document.body.classList.toggle('light-theme', currentTheme === 'light');
-        updateThemeMenu();
-    }
-});
 
 // Экспорт
 window.initTheme = initTheme;
