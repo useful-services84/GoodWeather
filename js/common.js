@@ -11,15 +11,39 @@ const WEATHER_BG_MAP = {
     default: 'img/default.jpg'
 };
 
-// Список API для попыток
 const API_URLS = [
     'https://api.open-meteo.com/v1/dwd-icon',
     'https://vpn.matvey-gadackiy2011.workers.dev/v1/dwd-icon',
     'https://api.open-meteo.com/v1/forecast'
 ];
 
-// Тема — СВЕТЛАЯ ПО УМОЛЧАНИЮ
+// Настройки
 let currentTheme = localStorage.getItem('theme') || 'light';
+let emojiSet = localStorage.getItem('emojiSet') || 'system';
+
+// Эмодзи Microsoft Fluent
+const FLUENT_EMOJIS = {
+    0: '☀️', 1: '☀️', 2: '☁️', 3: '☁️',
+    45: '🌁', 48: '🌁',
+    51: '💧', 53: '💧', 55: '💧',
+    61: '☔', 63: '☔', 65: '☔',
+    71: '🌨️', 73: '🌨️', 75: '🌨️',
+    80: '🌦️', 81: '🌦️', 82: '🌦️',
+    85: '❄️', 86: '❄️',
+    95: '🌩️', 96: '🌩️', 99: '🌩️'
+};
+
+// Системные эмодзи
+const SYSTEM_EMOJIS = {
+    0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️',
+    45: '🌫️', 48: '🌫️',
+    51: '🌦️', 53: '🌦️', 55: '🌧️',
+    61: '🌧️', 63: '🌧️', 65: '🌧️',
+    71: '🌨️', 73: '🌨️', 75: '❄️',
+    80: '🌦️', 81: '🌧️', 82: '🌧️',
+    85: '🌨️', 86: '❄️',
+    95: '⛈️', 96: '⛈️', 99: '⛈️'
+};
 
 function getWeatherCategory(code) {
     if (code === 0) return 'clear';
@@ -49,17 +73,8 @@ function getWeatherDescription(code) {
 }
 
 function getWeatherEmoji(code) {
-    const map = {
-        0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️',
-        45: '🌫️', 48: '🌫️',
-        51: '🌦️', 53: '🌦️', 55: '🌧️',
-        61: '🌧️', 63: '🌧️', 65: '🌧️',
-        71: '🌨️', 73: '🌨️', 75: '❄️',
-        80: '🌦️', 81: '🌧️', 82: '🌧️',
-        85: '🌨️', 86: '❄️',
-        95: '⛈️', 96: '⛈️', 99: '⛈️'
-    };
-    return map[code] || '🌡️';
+    const emojis = emojiSet === 'fluent' ? FLUENT_EMOJIS : SYSTEM_EMOJIS;
+    return emojis[code] || '🌡️';
 }
 
 function getWindDirection(deg) {
@@ -74,12 +89,10 @@ function updateBackground(code) {
     const category = getWeatherCategory(code);
     let imageUrl = WEATHER_BG_MAP[category] || WEATHER_BG_MAP.default;
     
-    // Исправляем путь для локальных файлов
     if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
         imageUrl = imageUrl.replace(/^\//, '');
     }
     
-    // Фолбэк-цвета
     const fallbackColors = {
         clear: 'linear-gradient(145deg, #4facfe 0%, #00f2fe 100%)',
         partly_cloudy: 'linear-gradient(145deg, #6b8cce 0%, #b8c6db 100%)',
@@ -91,17 +104,12 @@ function updateBackground(code) {
         default: 'linear-gradient(145deg, #2b5876 0%, #4e4376 100%)'
     };
     
-    // Ставим фолбэк
     bgLayer.style.backgroundImage = fallbackColors[category] || fallbackColors.default;
     
-    // Пробуем загрузить изображение
     if (imageUrl) {
         const img = new Image();
         img.onload = () => {
             bgLayer.style.backgroundImage = `url('${imageUrl}')`;
-        };
-        img.onerror = () => {
-            console.warn('Не удалось загрузить изображение:', imageUrl);
         };
         img.src = imageUrl;
     }
@@ -146,7 +154,6 @@ async function reverseGeocode(lat, lon) {
             fullDisplay: data.display_name || `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`
         };
     } catch (e) {
-        console.warn('Ошибка геокодирования:', e);
         return {
             main: 'Местоположение',
             region: '',
@@ -161,6 +168,7 @@ async function fetchWeatherData(lat, lon) {
         longitude: lon,
         current: 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m,visibility,surface_pressure,precipitation,wind_gusts_10m',
         daily: 'weather_code,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,sunrise,sunset',
+        hourly: 'temperature_2m,weather_code',
         timezone: 'auto',
         forecast_days: 7
     });
@@ -168,22 +176,15 @@ async function fetchWeatherData(lat, lon) {
     for (const baseUrl of API_URLS) {
         try {
             const url = `${baseUrl}?${params.toString()}`;
-            
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 5000);
-            
             const response = await fetch(url, { signal: controller.signal });
             clearTimeout(timeoutId);
-            
-            if (response.ok) {
-                return await response.json();
-            }
+            if (response.ok) return await response.json();
         } catch (e) {
-            console.warn('Не удалось через:', baseUrl);
             continue;
         }
     }
-    
     throw new Error('Все источники API недоступны');
 }
 
@@ -202,10 +203,12 @@ function getCurrentTimeString() {
 }
 
 function initTheme() {
-    if (currentTheme === 'light') {
-        document.body.classList.add('light-theme');
-    } else {
+    if (currentTheme === 'dark') {
+        document.body.classList.add('dark-theme');
         document.body.classList.remove('light-theme');
+    } else {
+        document.body.classList.add('light-theme');
+        document.body.classList.remove('dark-theme');
     }
 }
 
@@ -213,24 +216,31 @@ function toggleTheme() {
     currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('theme', currentTheme);
     initTheme();
-    updateThemeMenu();
+    updateMenuUI();
 }
 
-function updateThemeMenu() {
-    const themeItems = document.querySelectorAll('.menu-item[data-theme]');
-    themeItems.forEach(item => {
-        if (item.dataset.theme === currentTheme) {
-            item.classList.add('active');
-        } else {
-            item.classList.remove('active');
-        }
+function setEmojiSet(set) {
+    emojiSet = set;
+    localStorage.setItem('emojiSet', set);
+    updateMenuUI();
+    if (typeof loadWeatherData === 'function') loadWeatherData();
+}
+
+function updateMenuUI() {
+    // Обновление темы
+    document.querySelectorAll('.menu-item[data-theme]').forEach(item => {
+        item.classList.toggle('active', item.dataset.theme === currentTheme);
+    });
+    
+    // Обновление эмодзи
+    document.querySelectorAll('.menu-item[data-emoji]').forEach(item => {
+        item.classList.toggle('active', item.dataset.emoji === emojiSet);
     });
 }
 
 function initMenu() {
     const menuBtn = document.getElementById('menuBtn');
     const menuDropdown = document.getElementById('menuDropdown');
-    
     if (!menuBtn || !menuDropdown) return;
     
     menuBtn.addEventListener('click', (e) => {
@@ -246,28 +256,46 @@ function initMenu() {
         e.stopPropagation();
     });
     
-    const themeItems = document.querySelectorAll('.menu-item[data-theme]');
-    themeItems.forEach(item => {
+    // Раскрытие секций
+    document.querySelectorAll('.menu-section').forEach(section => {
+        const title = section.querySelector('.menu-section-title');
+        title.addEventListener('click', () => {
+            section.classList.toggle('expanded');
+        });
+    });
+    
+    // Обработчики темы
+    document.querySelectorAll('.menu-item[data-theme]').forEach(item => {
         item.addEventListener('click', () => {
             const theme = item.dataset.theme;
-            if (theme !== currentTheme) {
-                toggleTheme();
-            }
+            if (theme !== currentTheme) toggleTheme();
             menuDropdown.classList.remove('show');
         });
     });
     
-    updateThemeMenu();
+    // Обработчики эмодзи
+    document.querySelectorAll('.menu-item[data-emoji]').forEach(item => {
+        item.addEventListener('click', () => {
+            setEmojiSet(item.dataset.emoji);
+            menuDropdown.classList.remove('show');
+        });
+    });
+    
+    updateMenuUI();
 }
 
 window.addEventListener('storage', (e) => {
     if (e.key === 'theme') {
         currentTheme = e.newValue || 'light';
         initTheme();
-        updateThemeMenu();
+        updateMenuUI();
+    } else if (e.key === 'emojiSet') {
+        emojiSet = e.newValue || 'system';
+        updateMenuUI();
     }
 });
 
 window.initTheme = initTheme;
 window.initMenu = initMenu;
-window.toggleTheme = toggleTheme;
+window.getWeatherEmoji = getWeatherEmoji;
+window.emojiSet = emojiSet;

@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="light-theme">
     <div class="weather-background" id="bgLayer"></div>
 
     <div class="app-container">
@@ -27,15 +27,36 @@
             </div>
             
             <div class="menu-dropdown" id="menuDropdown">
-                <div class="menu-section">
-                    <div class="menu-section-title">Тема</div>
-                    <div class="menu-item" data-theme="dark">
-                        <span>🌙 Тёмная</span>
-                        <span class="check">✓</span>
+                <div class="menu-section expanded">
+                    <div class="menu-section-title">
+                        <span>Тема</span>
+                        <span class="arrow">›</span>
                     </div>
-                    <div class="menu-item" data-theme="light">
-                        <span>☀️ Светлая</span>
-                        <span class="check">✓</span>
+                    <div class="menu-items">
+                        <div class="menu-item" data-theme="light">
+                            <span>Светлая</span>
+                            <span class="check">✓</span>
+                        </div>
+                        <div class="menu-item" data-theme="dark">
+                            <span>Тёмная</span>
+                            <span class="check">✓</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="menu-section expanded">
+                    <div class="menu-section-title">
+                        <span>Эмодзи</span>
+                        <span class="arrow">›</span>
+                    </div>
+                    <div class="menu-items">
+                        <div class="menu-item" data-emoji="system">
+                            <span>Системные</span>
+                            <span class="check">✓</span>
+                        </div>
+                        <div class="menu-item" data-emoji="fluent">
+                            <span>Microsoft Fluent</span>
+                            <span class="check">✓</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -48,7 +69,10 @@
                 <div class="coordinates" id="coordsDisplay"></div>
                 
                 <div class="weather-status-row">
-                    <span class="temp-current" id="tempDisplay">--°</span>
+                    <div class="temp-section">
+                        <span class="temp-current" id="tempDisplay">--°</span>
+                        <span class="feels-like" id="feelsLikeHeader">Ощущается как --°</span>
+                    </div>
                     <span class="weather-desc" id="descDisplay">---</span>
                     <span class="update-badge" id="updateTimeDisplay"></span>
                 </div>

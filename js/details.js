@@ -10,6 +10,7 @@
     const regionDisplay = document.getElementById('regionDisplay');
     const coordsDisplay = document.getElementById('coordsDisplay');
     const tempDisplay = document.getElementById('tempDisplay');
+    const feelsLikeHeader = document.getElementById('feelsLikeHeader');
     const descDisplay = document.getElementById('descDisplay');
     const updateTimeDisplay = document.getElementById('updateTimeDisplay');
 
@@ -56,9 +57,9 @@
         if (coordsDisplay) coordsDisplay.textContent = `${currentLat.toFixed(4)}°, ${currentLon.toFixed(4)}°`;
         
         const weatherCode = current.weather_code;
-        if (tempDisplay) tempDisplay.textContent = `${Math.round(current.temperature_2m)}°C`;
+        if (tempDisplay) tempDisplay.textContent = `${Math.round(current.temperature_2m)}°`;
+        if (feelsLikeHeader) feelsLikeHeader.textContent = `Ощущается как ${Math.round(current.apparent_temperature)}°`;
         if (descDisplay) descDisplay.textContent = `${getWeatherEmoji(weatherCode)} ${getWeatherDescription(weatherCode)}`;
-        
         if (updateTimeDisplay) updateTimeDisplay.textContent = `Обновлено: ${getCurrentTimeString()}`;
         
         updateBackground(weatherCode);
