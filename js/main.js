@@ -49,7 +49,7 @@
         
         const width = 600;
         const height = 100;
-        const padding = 10;
+        const padding = 15;
         const maxTemp = Math.max(...temperatures);
         const minTemp = Math.min(...temperatures);
         const range = maxTemp - minTemp || 1;
@@ -82,7 +82,6 @@
         const daily = weatherData.daily;
         const targetDate = daily.time[dayIndex];
         
-        // Фильтруем часы для выбранного дня
         const dayHours = [];
         const dayTemps = [];
         
@@ -115,6 +114,7 @@
             hourlyScroll.appendChild(card);
         });
         
+        parseFluentEmoji(hourlyScroll);
         drawChart(dayTemps);
         modal.classList.add('show');
     }
@@ -131,7 +131,10 @@
         const weatherCode = current.weather_code;
         if (tempDisplay) tempDisplay.textContent = `${Math.round(current.temperature_2m)}°`;
         if (feelsLikeHeader) feelsLikeHeader.textContent = `Ощущается как ${Math.round(current.apparent_temperature)}°`;
-        if (descDisplay) descDisplay.textContent = `${getWeatherEmoji(weatherCode)} ${getWeatherDescription(weatherCode)}`;
+        if (descDisplay) {
+            descDisplay.textContent = `${getWeatherEmoji(weatherCode)} ${getWeatherDescription(weatherCode)}`;
+            parseFluentEmoji(descDisplay);
+        }
         if (updateTimeDisplay) updateTimeDisplay.textContent = `Обновлено: ${getCurrentTimeString()}`;
         
         updateBackground(weatherCode);
@@ -157,6 +160,7 @@
                 card.addEventListener('click', () => showHourlyForecast(i));
                 forecastScroll.appendChild(card);
             }
+            parseFluentEmoji(forecastScroll);
         }
     }
 

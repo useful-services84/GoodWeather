@@ -59,7 +59,10 @@
         const weatherCode = current.weather_code;
         if (tempDisplay) tempDisplay.textContent = `${Math.round(current.temperature_2m)}°`;
         if (feelsLikeHeader) feelsLikeHeader.textContent = `Ощущается как ${Math.round(current.apparent_temperature)}°`;
-        if (descDisplay) descDisplay.textContent = `${getWeatherEmoji(weatherCode)} ${getWeatherDescription(weatherCode)}`;
+        if (descDisplay) {
+            descDisplay.textContent = `${getWeatherEmoji(weatherCode)} ${getWeatherDescription(weatherCode)}`;
+            parseFluentEmoji(descDisplay);
+        }
         if (updateTimeDisplay) updateTimeDisplay.textContent = `Обновлено: ${getCurrentTimeString()}`;
         
         updateBackground(weatherCode);

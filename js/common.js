@@ -17,33 +17,23 @@ const API_URLS = [
     'https://api.open-meteo.com/v1/forecast'
 ];
 
-// Настройки
 let currentTheme = localStorage.getItem('theme') || 'light';
 let emojiSet = localStorage.getItem('emojiSet') || 'system';
 
-// Эмодзи Microsoft Fluent
-const FLUENT_EMOJIS = {
-    0: '☀️', 1: '☀️', 2: '☁️', 3: '☁️',
-    45: '🌁', 48: '🌁',
-    51: '💧', 53: '💧', 55: '💧',
-    61: '☔', 63: '☔', 65: '☔',
-    71: '🌨️', 73: '🌨️', 75: '🌨️',
-    80: '🌦️', 81: '🌦️', 82: '🌦️',
-    85: '❄️', 86: '❄️',
-    95: '🌩️', 96: '🌩️', 99: '🌩️'
-};
-
-// Системные эмодзи
+// Системные эмодзи (обычные)
 const SYSTEM_EMOJIS = {
     0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️',
     45: '🌫️', 48: '🌫️',
-    51: '🌦️', 53: '🌦️', 55: '🌧️',
+    51: '🌦️', 53: '🌧️', 55: '🌧️',
     61: '🌧️', 63: '🌧️', 65: '🌧️',
     71: '🌨️', 73: '🌨️', 75: '❄️',
     80: '🌦️', 81: '🌧️', 82: '🌧️',
-    85: '🌨️', 86: '❄️',
+    85: '❄️', 86: '❄️',
     95: '⛈️', 96: '⛈️', 99: '⛈️'
 };
+
+// Fluent Emoji — те же символы, но библиотека заменит их на 3D
+const FLUENT_EMOJIS = { ...SYSTEM_EMOJIS };
 
 function getWeatherCategory(code) {
     if (code === 0) return 'clear';
@@ -75,6 +65,13 @@ function getWeatherDescription(code) {
 function getWeatherEmoji(code) {
     const emojis = emojiSet === 'fluent' ? FLUENT_EMOJIS : SYSTEM_EMOJIS;
     return emojis[code] || '🌡️';
+}
+
+// Преобразование эмодзи в Fluent после рендера
+function parseFluentEmoji(element) {
+    if (typeof fluentemoji !== 'undefined' && emojiSet === 'fluent') {
+        fluentemoji.parse(element);
+    }
 }
 
 function getWindDirection(deg) {
@@ -227,12 +224,10 @@ function setEmojiSet(set) {
 }
 
 function updateMenuUI() {
-    // Обновление темы
     document.querySelectorAll('.menu-item[data-theme]').forEach(item => {
         item.classList.toggle('active', item.dataset.theme === currentTheme);
     });
     
-    // Обновление эмодзи
     document.querySelectorAll('.menu-item[data-emoji]').forEach(item => {
         item.classList.toggle('active', item.dataset.emoji === emojiSet);
     });
@@ -256,7 +251,6 @@ function initMenu() {
         e.stopPropagation();
     });
     
-    // Раскрытие секций
     document.querySelectorAll('.menu-section').forEach(section => {
         const title = section.querySelector('.menu-section-title');
         title.addEventListener('click', () => {
@@ -264,7 +258,6 @@ function initMenu() {
         });
     });
     
-    // Обработчики темы
     document.querySelectorAll('.menu-item[data-theme]').forEach(item => {
         item.addEventListener('click', () => {
             const theme = item.dataset.theme;
@@ -273,7 +266,6 @@ function initMenu() {
         });
     });
     
-    // Обработчики эмодзи
     document.querySelectorAll('.menu-item[data-emoji]').forEach(item => {
         item.addEventListener('click', () => {
             setEmojiSet(item.dataset.emoji);
@@ -298,4 +290,5 @@ window.addEventListener('storage', (e) => {
 window.initTheme = initTheme;
 window.initMenu = initMenu;
 window.getWeatherEmoji = getWeatherEmoji;
+window.parseFluentEmoji = parseFluentEmoji;
 window.emojiSet = emojiSet;
