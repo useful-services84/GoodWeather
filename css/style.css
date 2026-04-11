@@ -5,7 +5,7 @@
 }
 
 body {
-    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
     min-height: 100vh;
     background-color: #e8f0fe;
     color: #1a1a2e;
@@ -15,19 +15,20 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
-/* Тёмная тема */
 body.dark-theme {
     background-color: #0b1a2a;
     color: white;
 }
 
-/* Фоновый слой — ТОЛЬКО ДЛЯ ШАПКИ */
+/* Фоновый слой — ровно до вкладок */
 .weather-background {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 260px;
+    height: calc(100% - 60vh);
+    min-height: 200px;
+    max-height: 280px;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -36,7 +37,6 @@ body.dark-theme {
     pointer-events: none;
 }
 
-/* Затемнение для картинки */
 .weather-background::after {
     content: '';
     position: absolute;
@@ -44,15 +44,14 @@ body.dark-theme {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(0, 0, 0, 0.2);
     pointer-events: none;
 }
 
 body.dark-theme .weather-background::after {
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.35);
 }
 
-/* Основной контейнер */
 .app-container {
     position: relative;
     z-index: 2;
@@ -62,10 +61,8 @@ body.dark-theme .weather-background::after {
     background: transparent;
 }
 
-/* Шапка */
 .app-header {
-    padding: 1rem 1.5rem 1rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 1rem 1.5rem 0.75rem;
     background: transparent;
     position: relative;
     z-index: 3;
@@ -82,7 +79,6 @@ body.dark-theme .app-header {
     margin-bottom: 0.5rem;
 }
 
-/* Кнопка меню */
 .menu-btn {
     background: rgba(255, 255, 255, 0.5);
     border: 1px solid rgba(0, 0, 0, 0.1);
@@ -112,11 +108,6 @@ body.dark-theme .menu-btn:hover {
     background: rgba(0, 0, 0, 0.3);
 }
 
-.menu-btn svg {
-    opacity: 0.8;
-}
-
-/* Выпадающее меню */
 .menu-dropdown {
     position: absolute;
     top: 70px;
@@ -257,7 +248,6 @@ body.dark-theme .city-name {
     opacity: 0.5;
     margin-bottom: 0.5rem;
     font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", monospace;
-    letter-spacing: 0.02em;
 }
 
 .weather-status-row {
@@ -291,6 +281,16 @@ body.dark-theme .city-name {
     font-weight: 350;
     opacity: 0.9;
     margin-left: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.weather-emoji-icon {
+    width: 2rem;
+    height: 2rem;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .update-badge {
@@ -309,6 +309,7 @@ body.dark-theme .city-name {
     width: 100%;
     position: relative;
     z-index: 3;
+    background: transparent;
 }
 
 .tabs {
@@ -334,7 +335,6 @@ body.dark-theme .tabs {
     margin-bottom: -1px;
     text-decoration: none;
     display: inline-block;
-    letter-spacing: -0.01em;
 }
 
 body.dark-theme .tab-btn {
@@ -373,37 +373,99 @@ body.dark-theme .tab-btn.active {
     z-index: 3;
 }
 
+/* Представление прогноза */
+.forecast-view, .hourly-view {
+    transition: opacity 0.3s;
+}
+
+.hourly-view {
+    display: none;
+}
+
+.hourly-view.active {
+    display: block;
+}
+
+.forecast-view.hidden {
+    display: none;
+}
+
+.back-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.back-btn:hover {
+    opacity: 1;
+}
+
+.back-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
 .section-title {
     font-size: 1.1rem;
     font-weight: 450;
     opacity: 0.7;
     margin-bottom: 1rem;
-    letter-spacing: -0.01em;
     text-transform: uppercase;
 }
 
-/* Горизонтальный скролл прогноза */
-.forecast-scroll {
+/* График */
+.temp-chart-container {
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+.temp-chart {
+    position: relative;
+    height: 120px;
+    min-width: 600px;
+}
+
+.chart-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.chart-line {
+    fill: none;
+    stroke: #4facfe;
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+.chart-point {
+    fill: #4facfe;
+}
+
+.chart-label {
+    font-size: 0.7rem;
+    fill: currentColor;
+    opacity: 0.7;
+    text-anchor: middle;
+}
+
+/* Скролл прогноза */
+.forecast-scroll, .hourly-scroll {
     display: flex;
     gap: 0.75rem;
     overflow-x: auto;
     padding: 0.5rem 0.25rem 1.5rem;
     scrollbar-width: thin;
-    scrollbar-color: rgba(128, 128, 128, 0.3) transparent;
     -webkit-overflow-scrolling: touch;
-}
-
-.forecast-scroll::-webkit-scrollbar {
-    height: 3px;
-}
-
-.forecast-scroll::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.forecast-scroll::-webkit-scrollbar-thumb {
-    background-color: rgba(128, 128, 128, 0.3);
-    border-radius: 3px;
 }
 
 .forecast-card {
@@ -436,102 +498,35 @@ body.dark-theme .forecast-card:hover {
     font-size: 0.9rem;
     font-weight: 500;
     margin-bottom: 0.25rem;
-    opacity: 0.9;
 }
 
 .forecast-date {
     font-size: 0.7rem;
     opacity: 0.5;
-    font-weight: 350;
     margin-bottom: 0.5rem;
 }
 
-.forecast-icon {
-    font-size: 1.8rem;
-    margin: 0.25rem 0;
+.forecast-icon, .hourly-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin: 0.25rem auto;
+}
+
+.forecast-icon img, .hourly-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .forecast-temp-max {
     font-size: 1.3rem;
     font-weight: 450;
-    letter-spacing: -0.01em;
 }
 
 .forecast-temp-min {
     font-size: 0.85rem;
     opacity: 0.6;
     margin-top: 0.25rem;
-    font-weight: 350;
-}
-
-/* Модальное окно для почасового прогноза */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-}
-
-.modal-overlay.show {
-    display: flex;
-}
-
-.modal-content {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 24px;
-    padding: 1.5rem;
-    max-width: 600px;
-    width: 100%;
-    max-height: 80vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-body.dark-theme .modal-content {
-    background: rgba(20, 30, 40, 0.95);
-    color: white;
-}
-
-.modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-}
-
-.modal-title {
-    font-size: 1.3rem;
-    font-weight: 500;
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: inherit;
-    opacity: 0.6;
-    padding: 0.5rem;
-}
-
-.modal-close:hover {
-    opacity: 1;
-}
-
-.hourly-scroll {
-    display: flex;
-    gap: 0.75rem;
-    overflow-x: auto;
-    padding: 1rem 0.25rem;
-    scrollbar-width: thin;
 }
 
 .hourly-card {
@@ -546,41 +541,13 @@ body.dark-theme .modal-content {
     margin-bottom: 0.5rem;
 }
 
-.hourly-icon {
-    font-size: 1.5rem;
-    margin: 0.25rem 0;
-}
-
 .hourly-temp {
     font-size: 1.1rem;
     font-weight: 500;
+    margin-top: 0.25rem;
 }
 
-/* График температуры */
-.temp-chart {
-    margin-top: 1.5rem;
-    padding: 1rem 0;
-    position: relative;
-    height: 100px;
-}
-
-.chart-svg {
-    width: 100%;
-    height: 100%;
-}
-
-.chart-line {
-    fill: none;
-    stroke: #4facfe;
-    stroke-width: 2;
-    stroke-linecap: round;
-}
-
-.chart-point {
-    fill: #4facfe;
-}
-
-/* Страница подробностей */
+/* Детали */
 .details-section {
     background: rgba(255, 255, 255, 0.5);
     border-radius: 24px;
@@ -616,14 +583,12 @@ body.dark-theme .details-section {
     font-size: 2rem;
     font-weight: 300;
     line-height: 1.2;
-    letter-spacing: -0.02em;
 }
 
 .detail-unit {
     font-size: 0.9rem;
     opacity: 0.5;
     margin-left: 0.2rem;
-    font-weight: 350;
 }
 
 .detail-sub {
@@ -632,7 +597,7 @@ body.dark-theme .details-section {
     margin-top: 0.25rem;
 }
 
-/* Состояния загрузки и ошибки */
+/* Статусы */
 .status-message {
     display: flex;
     flex-direction: column;
@@ -642,7 +607,6 @@ body.dark-theme .details-section {
     font-size: 1rem;
     gap: 1rem;
     opacity: 0.7;
-    font-weight: 350;
 }
 
 .loader {
@@ -677,7 +641,6 @@ body.dark-theme .error {
     cursor: pointer;
     transition: background 0.2s;
     font-family: "Inter", sans-serif;
-    font-weight: 400;
     margin-top: 0.5rem;
 }
 
@@ -718,14 +681,10 @@ body.dark-theme .refresh-btn:hover {
     background: rgba(0, 0, 0, 0.3);
 }
 
-.refresh-btn svg {
-    opacity: 0.8;
-}
-
 /* Адаптация */
 @media (max-width: 600px) {
-    .weather-background { height: 240px; }
-    .app-header { padding: 0.75rem 1rem 0.75rem; }
+    .weather-background { max-height: 240px; }
+    .app-header { padding: 0.75rem 1rem 0.5rem; }
     .content-area { padding: 1rem; }
     .tabs-container { padding: 0 1rem; }
     .menu-dropdown { left: 1rem; top: 60px; }
@@ -738,17 +697,9 @@ body.dark-theme .refresh-btn:hover {
     .details-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
     .detail-value { font-size: 1.6rem; }
     
-    .forecast-card { min-width: 85px; padding: 0.75rem 0.75rem; }
-    
-    .weather-status-row { flex-wrap: wrap; }
-    .temp-section { width: 100%; margin-bottom: 0.5rem; }
+    .forecast-card { min-width: 85px; padding: 0.75rem; }
 }
 
 @media (max-width: 400px) {
-    .weather-background { height: 260px; }
     .details-grid { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 900px) and (orientation: landscape) {
-    .weather-background { height: 180px; }
 }

@@ -8,8 +8,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-    <!-- Microsoft Fluent Emoji -->
-    <script src="https://emoji.fluent-cdn.com/latest/fluentemoji.min.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="light-theme">
@@ -94,9 +92,27 @@
                 <p>Загружаем прогноз погоды…</p>
             </div>
 
-            <div id="forecastContent">
+            <!-- Основной вид: прогноз на неделю -->
+            <div id="forecastView" class="forecast-view">
                 <h2 class="section-title">7 дней</h2>
                 <div class="forecast-scroll" id="forecastScroll"></div>
+            </div>
+
+            <!-- Вид: почасовой прогноз -->
+            <div id="hourlyView" class="hourly-view">
+                <button class="back-btn" id="backBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                    Назад
+                </button>
+                <h2 class="section-title" id="hourlyTitle">Почасовой прогноз</h2>
+                <div class="temp-chart-container">
+                    <div class="temp-chart">
+                        <svg class="chart-svg" id="chartSvg" viewBox="0 0 600 100" preserveAspectRatio="none"></svg>
+                    </div>
+                </div>
+                <div class="hourly-scroll" id="hourlyScroll"></div>
             </div>
 
             <div id="errorUI" class="status-message error" style="display: none;">
@@ -105,20 +121,6 @@
                 <button class="retry-btn" id="errorRetryBtn">Попробовать снова</button>
             </div>
         </main>
-    </div>
-
-    <!-- Модальное окно для почасового прогноза -->
-    <div class="modal-overlay" id="hourlyModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="modal-title" id="modalTitle">Почасовой прогноз</span>
-                <button class="modal-close" id="modalClose">✕</button>
-            </div>
-            <div class="hourly-scroll" id="hourlyScroll"></div>
-            <div class="temp-chart" id="tempChart">
-                <svg class="chart-svg" id="chartSvg" viewBox="0 0 600 100" preserveAspectRatio="none"></svg>
-            </div>
-        </div>
     </div>
 
     <button class="refresh-btn" id="refreshBtn" title="Обновить">

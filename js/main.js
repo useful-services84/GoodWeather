@@ -2,7 +2,8 @@
     "use strict";
 
     const loadingUI = document.getElementById('loadingUI');
-    const forecastContent = document.getElementById('forecastContent');
+    const forecastView = document.getElementById('forecastView');
+    const hourlyView = document.getElementById('hourlyView');
     const errorUI = document.getElementById('errorUI');
     const errorText = document.getElementById('errorText');
     const forecastScroll = document.getElementById('forecastScroll');
@@ -15,11 +16,10 @@
     const descDisplay = document.getElementById('descDisplay');
     const updateTimeDisplay = document.getElementById('updateTimeDisplay');
 
-    const modal = document.getElementById('hourlyModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalClose = document.getElementById('modalClose');
+    const hourlyTitle = document.getElementById('hourlyTitle');
     const hourlyScroll = document.getElementById('hourlyScroll');
     const chartSvg = document.getElementById('chartSvg');
+    const backBtn = document.getElementById('backBtn');
 
     let currentLat = null;
     let currentLon = null;
@@ -27,19 +27,22 @@
 
     function showLoading() {
         if (loadingUI) loadingUI.style.display = 'flex';
-        if (forecastContent) forecastContent.style.display = 'none';
+        if (forecastView) forecastView.style.display = 'none';
+        if (hourlyView) hourlyView.style.display = 'none';
         if (errorUI) errorUI.style.display = 'none';
     }
 
     function showContent() {
         if (loadingUI) loadingUI.style.display = 'none';
-        if (forecastContent) forecastContent.style.display = 'block';
+        if (forecastView) forecastView.classList.remove('hidden');
+        if (hourlyView) hourlyView.classList.remove('active');
         if (errorUI) errorUI.style.display = 'none';
     }
 
     function showError(msg) {
         if (loadingUI) loadingUI.style.display = 'none';
-        if (forecastContent) forecastContent.style.display = 'none';
+        if (forecastView) forecastView.style.display = 'none';
+        if (hourlyView) hourlyView.style.display = 'none';
         if (errorUI) errorUI.style.display = 'flex';
         if (errorText) errorText.textContent = msg || 'Неизвестная ошибка';
     }
@@ -47,9 +50,11 @@
     function drawChart(temperatures) {
         if (!chartSvg) return;
         
-        const width = 600;
+        const width = Math.max(600, temperatures.length * 50);
+        chartSvg.setAttribute('viewBox', `0 0 ${width} 100`);
+        
         const height = 100;
-        const padding = 15;
+        const padding = 40;
         const maxTemp = Math.max(...temperatures);
         const minTemp = Math.min(...temperatures);
         const range = maxTemp - minTemp || 1;
@@ -65,13 +70,16 @@
         }
         
         let circles = '';
-        points.forEach(p => {
-            circles += `<circle cx="${p.x}" cy="${p.y}" r="3" class="chart-point"/>`;
+        let labels = '';
+        points.forEach((p, i) => {
+            circles += `<circle cx="${p.x}" cy="${p.y}" r="4" class="chart-point"/>`;
+            labels += `<text x="${p.x}" y="${p.y - 8}" class="chart-label">${Math.round(temperatures[i])}°</text>`;
         });
         
         chartSvg.innerHTML = `
             <path d="${pathD}" class="chart-line"/>
             ${circles}
+            ${labels}
         `;
     }
 
@@ -99,7 +107,7 @@
         if (dayHours.length === 0) return;
         
         const date = new Date(targetDate);
-        modalTitle.textContent = date.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+        hourlyTitle.textContent = date.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
         
         hourlyScroll.innerHTML = '';
         dayHours.forEach(hour => {
@@ -108,15 +116,16 @@
             card.className = 'hourly-card';
             card.innerHTML = `
                 <div class="hourly-time">${time.getHours()}:00</div>
-                <div class="hourly-icon">${getWeatherEmoji(hour.code)}</div>
+                <div class="hourly-icon">${getWeatherEmojiHtml(hour.code)}</div>
                 <div class="hourly-temp">${Math.round(hour.temp)}°</div>
             `;
             hourlyScroll.appendChild(card);
         });
         
-        parseFluentEmoji(hourlyScroll);
         drawChart(dayTemps);
-        modal.classList.add('show');
+        
+        forecastView.classList.add('hidden');
+        hourlyView.classList.add('active');
     }
 
     function updateUI(data, locationInfo) {
@@ -132,8 +141,7 @@
         if (tempDisplay) tempDisplay.textContent = `${Math.round(current.temperature_2m)}°`;
         if (feelsLikeHeader) feelsLikeHeader.textContent = `Ощущается как ${Math.round(current.apparent_temperature)}°`;
         if (descDisplay) {
-            descDisplay.textContent = `${getWeatherEmoji(weatherCode)} ${getWeatherDescription(weatherCode)}`;
-            parseFluentEmoji(descDisplay);
+            descDisplay.innerHTML = `${getWeatherEmojiHtml(weatherCode)} ${getWeatherDescription(weatherCode)}`;
         }
         if (updateTimeDisplay) updateTimeDisplay.textContent = `Обновлено: ${getCurrentTimeString()}`;
         
@@ -153,14 +161,13 @@
                 card.innerHTML = `
                     <div class="forecast-day">${dayName}</div>
                     <div class="forecast-date">${dayDate}</div>
-                    <div class="forecast-icon">${getWeatherEmoji(code)}</div>
+                    <div class="forecast-icon">${getWeatherEmojiHtml(code)}</div>
                     <div class="forecast-temp-max">${Math.round(daily.temperature_2m_max[i])}°</div>
                     <div class="forecast-temp-min">${Math.round(daily.temperature_2m_min[i])}°</div>
                 `;
                 card.addEventListener('click', () => showHourlyForecast(i));
                 forecastScroll.appendChild(card);
             }
-            parseFluentEmoji(forecastScroll);
         }
     }
 
@@ -192,13 +199,10 @@
     if (refreshBtn) refreshBtn.addEventListener('click', loadWeatherData);
     if (errorRetryBtn) errorRetryBtn.addEventListener('click', loadWeatherData);
 
-    if (modalClose) {
-        modalClose.addEventListener('click', () => modal.classList.remove('show'));
-    }
-    
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.classList.remove('show');
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            forecastView.classList.remove('hidden');
+            hourlyView.classList.remove('active');
         });
     }
 

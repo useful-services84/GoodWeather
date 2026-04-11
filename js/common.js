@@ -20,6 +20,33 @@ const API_URLS = [
 let currentTheme = localStorage.getItem('theme') || 'light';
 let emojiSet = localStorage.getItem('emojiSet') || 'system';
 
+// Карта SVG-эмодзи Microsoft Fluent
+const FLUENT_SVG_MAP = {
+    0: 'Sun.svg',                          // Ясно
+    1: 'Sun behind small cloud.svg',       // Преимущественно ясно
+    2: 'Sun behind cloud.svg',             // Переменная облачность
+    3: 'Cloud.svg',                        // Пасмурно
+    45: 'Fog.svg',                         // Туман
+    48: 'Fog.svg',                         // Изморозь
+    51: 'Cloud with rain.svg',             // Лёгкая морось
+    53: 'Cloud with rain.svg',             // Морось
+    55: 'Cloud with rain.svg',             // Сильная морось
+    61: 'Sun behind rain cloud.svg',       // Небольшой дождь
+    63: 'Cloud with rain.svg',             // Дождь
+    65: 'Cloud with rain.svg',             // Сильный дождь
+    71: 'Cloud with snow.svg',             // Небольшой снег
+    73: 'Cloud with snow.svg',             // Снег
+    75: 'Cloud with snow.svg',             // Сильный снег
+    80: 'Cloud with rain.svg',             // Ливень
+    81: 'Cloud with rain.svg',             // Сильный ливень
+    82: 'Cloud with rain.svg',             // Очень сильный ливень
+    85: 'Cloud with snow.svg',             // Снегопад
+    86: 'Cloud with snow.svg',             // Сильный снегопад
+    95: 'Cloud with lightning.svg',        // Гроза
+    96: 'Cloud with lightning and rain.svg', // Гроза с градом
+    99: 'Cloud with lightning and rain.svg'  // Сильная гроза
+};
+
 // Системные эмодзи (обычные)
 const SYSTEM_EMOJIS = {
     0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️',
@@ -31,9 +58,6 @@ const SYSTEM_EMOJIS = {
     85: '❄️', 86: '❄️',
     95: '⛈️', 96: '⛈️', 99: '⛈️'
 };
-
-// Fluent Emoji — те же символы, но библиотека заменит их на 3D
-const FLUENT_EMOJIS = { ...SYSTEM_EMOJIS };
 
 function getWeatherCategory(code) {
     if (code === 0) return 'clear';
@@ -62,15 +86,13 @@ function getWeatherDescription(code) {
     return map[code] || 'Неизвестно';
 }
 
-function getWeatherEmoji(code) {
-    const emojis = emojiSet === 'fluent' ? FLUENT_EMOJIS : SYSTEM_EMOJIS;
-    return emojis[code] || '🌡️';
-}
-
-// Преобразование эмодзи в Fluent после рендера
-function parseFluentEmoji(element) {
-    if (typeof fluentemoji !== 'undefined' && emojiSet === 'fluent') {
-        fluentemoji.parse(element);
+function getWeatherEmojiHtml(code) {
+    if (emojiSet === 'fluent') {
+        const svgFile = FLUENT_SVG_MAP[code] || 'Cloud.svg';
+        return `<img src="emoji/${svgFile}" alt="" class="weather-emoji-icon">`;
+    } else {
+        const emoji = SYSTEM_EMOJIS[code] || '🌡️';
+        return `<span class="weather-emoji-icon">${emoji}</span>`;
     }
 }
 
@@ -289,6 +311,5 @@ window.addEventListener('storage', (e) => {
 
 window.initTheme = initTheme;
 window.initMenu = initMenu;
-window.getWeatherEmoji = getWeatherEmoji;
-window.parseFluentEmoji = parseFluentEmoji;
+window.getWeatherEmojiHtml = getWeatherEmojiHtml;
 window.emojiSet = emojiSet;

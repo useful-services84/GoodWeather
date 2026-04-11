@@ -60,8 +60,7 @@
         if (tempDisplay) tempDisplay.textContent = `${Math.round(current.temperature_2m)}°`;
         if (feelsLikeHeader) feelsLikeHeader.textContent = `Ощущается как ${Math.round(current.apparent_temperature)}°`;
         if (descDisplay) {
-            descDisplay.textContent = `${getWeatherEmoji(weatherCode)} ${getWeatherDescription(weatherCode)}`;
-            parseFluentEmoji(descDisplay);
+            descDisplay.innerHTML = `${getWeatherEmojiHtml(weatherCode)} ${getWeatherDescription(weatherCode)}`;
         }
         if (updateTimeDisplay) updateTimeDisplay.textContent = `Обновлено: ${getCurrentTimeString()}`;
         
