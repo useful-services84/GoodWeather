@@ -21,97 +21,22 @@ body.light-theme {
     color: #1a1a2e;
 }
 
-body.light-theme .weather-background::after {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-body.light-theme .city-name,
-body.light-theme .region-name,
-body.light-theme .temp-current,
-body.light-theme .weather-desc {
-    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
-}
-
-body.light-theme .menu-btn,
-body.light-theme .refresh-btn {
-    background: rgba(255, 255, 255, 0.5);
-    border-color: rgba(0, 0, 0, 0.1);
-    color: #1a1a2e;
-}
-
-body.light-theme .menu-dropdown {
-    background: rgba(255, 255, 255, 0.95);
-    border-color: rgba(0, 0, 0, 0.1);
-    color: #1a1a2e;
-}
-
-body.light-theme .menu-item:hover {
-    background: rgba(0, 0, 0, 0.05);
-}
-
-body.light-theme .menu-item.active {
-    background: rgba(0, 0, 0, 0.08);
-}
-
-body.light-theme .tab-btn {
-    color: rgba(26, 26, 46, 0.6);
-}
-
-body.light-theme .tab-btn:hover {
-    color: #1a1a2e;
-    background: rgba(0, 0, 0, 0.03);
-}
-
-body.light-theme .tab-btn.active {
-    color: #1a1a2e;
-    border-bottom-color: #1a1a2e;
-}
-
-body.light-theme .forecast-card {
-    background: rgba(255, 255, 255, 0.5);
-    border-color: rgba(0, 0, 0, 0.08);
-}
-
-body.light-theme .forecast-card:hover {
-    background: rgba(255, 255, 255, 0.7);
-}
-
-body.light-theme .details-section {
-    background: rgba(255, 255, 255, 0.5);
-    border-color: rgba(0, 0, 0, 0.08);
-}
-
-body.light-theme .retry-btn {
-    background: rgba(0, 0, 0, 0.05);
-    border-color: rgba(0, 0, 0, 0.1);
-    color: #1a1a2e;
-}
-
-body.light-theme .app-header {
-    border-bottom-color: rgba(0, 0, 0, 0.1);
-}
-
-body.light-theme .tabs {
-    border-bottom-color: rgba(0, 0, 0, 0.1);
-}
-
-/* Фоновый слой */
+/* Фоновый слой — ТОЛЬКО ДЛЯ ШАПКИ */
 .weather-background {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 220px;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     z-index: 1;
     transition: background-image 0.7s cubic-bezier(0.23, 1, 0.32, 1);
     pointer-events: none;
-    will-change: background-image;
 }
 
-/* Затемнение */
+/* Затемнение для картинки */
 .weather-background::after {
     content: '';
     position: absolute;
@@ -121,6 +46,10 @@ body.light-theme .tabs {
     height: 100%;
     background: rgba(0, 0, 0, 0.35);
     pointer-events: none;
+}
+
+body.light-theme .weather-background::after {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 /* Основной контейнер */
@@ -138,6 +67,13 @@ body.light-theme .tabs {
     padding: 1rem 1.5rem 0.75rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     background: transparent;
+    position: relative;
+    z-index: 3;
+    min-height: 180px;
+}
+
+body.light-theme .app-header {
+    border-bottom-color: rgba(0, 0, 0, 0.1);
 }
 
 .header-top-row {
@@ -167,6 +103,12 @@ body.light-theme .tabs {
     background: rgba(0, 0, 0, 0.3);
 }
 
+body.light-theme .menu-btn {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #1a1a2e;
+}
+
 .menu-btn svg {
     opacity: 0.8;
 }
@@ -184,6 +126,12 @@ body.light-theme .tabs {
     z-index: 1000;
     display: none;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+body.light-theme .menu-dropdown {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #1a1a2e;
 }
 
 .menu-dropdown.show {
@@ -218,8 +166,16 @@ body.light-theme .tabs {
     background: rgba(255, 255, 255, 0.1);
 }
 
+body.light-theme .menu-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
 .menu-item.active {
     background: rgba(255, 255, 255, 0.15);
+}
+
+body.light-theme .menu-item.active {
+    background: rgba(0, 0, 0, 0.08);
 }
 
 .menu-item .check {
@@ -250,19 +206,23 @@ body.light-theme .tabs {
     font-size: 2.2rem;
     font-weight: 500;
     letter-spacing: -0.02em;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+body.light-theme .city-name {
+    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
 }
 
 .region-name {
     font-size: 1rem;
-    opacity: 0.7;
+    opacity: 0.8;
     font-weight: 350;
-    text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
 }
 
 .coordinates {
     font-size: 0.75rem;
-    opacity: 0.5;
+    opacity: 0.6;
     margin-bottom: 0.75rem;
     font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", monospace;
     letter-spacing: 0.02em;
@@ -279,21 +239,21 @@ body.light-theme .tabs {
     font-size: 3.5rem;
     font-weight: 350;
     line-height: 1;
-    text-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
     letter-spacing: -0.02em;
 }
 
 .weather-desc {
     font-size: 1.5rem;
     font-weight: 350;
-    opacity: 0.9;
-    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0.95;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.3);
 }
 
 .update-badge {
     margin-left: auto;
     font-size: 0.8rem;
-    opacity: 0.5;
+    opacity: 0.6;
     font-weight: 350;
     align-self: flex-end;
 }
@@ -304,12 +264,18 @@ body.light-theme .tabs {
     margin: 0 auto;
     padding: 0 1.5rem;
     width: 100%;
+    position: relative;
+    z-index: 3;
 }
 
 .tabs {
     display: flex;
     gap: 0.25rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.light-theme .tabs {
+    border-bottom-color: rgba(0, 0, 0, 0.1);
 }
 
 .tab-btn {
@@ -328,15 +294,29 @@ body.light-theme .tabs {
     letter-spacing: -0.01em;
 }
 
+body.light-theme .tab-btn {
+    color: rgba(26, 26, 46, 0.6);
+}
+
 .tab-btn:hover {
     color: rgba(255, 255, 255, 0.9);
     background: rgba(255, 255, 255, 0.03);
+}
+
+body.light-theme .tab-btn:hover {
+    color: #1a1a2e;
+    background: rgba(0, 0, 0, 0.03);
 }
 
 .tab-btn.active {
     color: white;
     border-bottom-color: rgba(255, 255, 255, 0.8);
     font-weight: 450;
+}
+
+body.light-theme .tab-btn.active {
+    color: #1a1a2e;
+    border-bottom-color: #1a1a2e;
 }
 
 /* Контент */
@@ -346,6 +326,8 @@ body.light-theme .tabs {
     margin: 0 auto;
     padding: 1.5rem;
     width: 100%;
+    position: relative;
+    z-index: 3;
 }
 
 .section-title {
@@ -364,10 +346,8 @@ body.light-theme .tabs {
     overflow-x: auto;
     padding: 0.5rem 0.25rem 1.5rem;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    scrollbar-color: rgba(128, 128, 128, 0.3) transparent;
     -webkit-overflow-scrolling: touch;
-    will-change: scroll-position;
-    transform: translateZ(0);
 }
 
 .forecast-scroll::-webkit-scrollbar {
@@ -379,23 +359,32 @@ body.light-theme .tabs {
 }
 
 .forecast-scroll::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(128, 128, 128, 0.3);
     border-radius: 3px;
 }
 
 .forecast-card {
-    background: rgba(0, 0, 0, 0.15);
+    background: rgba(128, 128, 128, 0.1);
     border-radius: 16px;
     padding: 1rem 1.25rem;
     min-width: 100px;
     text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(128, 128, 128, 0.15);
     transition: background 0.2s;
     flex-shrink: 0;
 }
 
+body.light-theme .forecast-card {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
 .forecast-card:hover {
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(128, 128, 128, 0.15);
+}
+
+body.light-theme .forecast-card:hover {
+    background: rgba(255, 255, 255, 0.85);
 }
 
 .forecast-day {
@@ -433,10 +422,15 @@ body.light-theme .tabs {
 
 /* Страница подробностей */
 .details-section {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(128, 128, 128, 0.08);
     border-radius: 24px;
     padding: 1.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(128, 128, 128, 0.1);
+}
+
+body.light-theme .details-section {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(0, 0, 0, 0.08);
 }
 
 .details-grid {
@@ -514,8 +508,8 @@ body.light-theme .error {
 }
 
 .retry-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(128, 128, 128, 0.15);
+    border: 1px solid rgba(128, 128, 128, 0.2);
     color: inherit;
     padding: 0.6rem 1.5rem;
     border-radius: 40px;
@@ -528,7 +522,7 @@ body.light-theme .error {
 }
 
 .retry-btn:hover {
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(128, 128, 128, 0.25);
 }
 
 /* Кнопка обновления */
@@ -550,6 +544,11 @@ body.light-theme .error {
     z-index: 100;
 }
 
+body.light-theme .refresh-btn {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
 .refresh-btn:hover {
     background: rgba(0, 0, 0, 0.3);
     transform: rotate(15deg);
@@ -561,7 +560,8 @@ body.light-theme .error {
 
 /* Адаптация */
 @media (max-width: 600px) {
-    .app-header { padding: 0.75rem 1rem 0.5rem; }
+    .weather-background { height: 200px; }
+    .app-header { padding: 0.75rem 1rem 0.5rem; min-height: 160px; }
     .content-area { padding: 1rem; }
     .tabs-container { padding: 0 1rem; }
     .menu-dropdown { left: 1rem; top: 60px; }
