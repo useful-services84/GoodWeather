@@ -39,7 +39,6 @@
         loadingUI.style.display = 'none';
         detailsContent.style.display = 'block';
         errorUI.style.display = 'none';
-        updateProxyStatus();
     }
 
     function showError(msg) {
@@ -47,7 +46,6 @@
         detailsContent.style.display = 'none';
         errorUI.style.display = 'flex';
         errorText.textContent = msg || 'Неизвестная ошибка';
-        updateProxyStatus();
     }
 
     function updateUI(data, locationInfo) {
@@ -106,6 +104,7 @@
     document.getElementById('refreshBtn').addEventListener('click', loadWeatherData);
     document.getElementById('errorRetryBtn').addEventListener('click', loadWeatherData);
 
+    initTheme();
     initMenu();
     loadWeatherData();
 

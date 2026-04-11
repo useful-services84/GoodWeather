@@ -12,6 +12,87 @@ body {
     font-weight: 300;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Светлая тема */
+body.light-theme {
+    background-color: #e8f0fe;
+    color: #1a1a2e;
+}
+
+body.light-theme .weather-background::after {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+body.light-theme .city-name,
+body.light-theme .region-name,
+body.light-theme .temp-current,
+body.light-theme .weather-desc {
+    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
+}
+
+body.light-theme .menu-btn,
+body.light-theme .refresh-btn {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #1a1a2e;
+}
+
+body.light-theme .menu-dropdown {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #1a1a2e;
+}
+
+body.light-theme .menu-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+body.light-theme .menu-item.active {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .tab-btn {
+    color: rgba(26, 26, 46, 0.6);
+}
+
+body.light-theme .tab-btn:hover {
+    color: #1a1a2e;
+    background: rgba(0, 0, 0, 0.03);
+}
+
+body.light-theme .tab-btn.active {
+    color: #1a1a2e;
+    border-bottom-color: #1a1a2e;
+}
+
+body.light-theme .forecast-card {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .forecast-card:hover {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+body.light-theme .details-section {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .retry-btn {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #1a1a2e;
+}
+
+body.light-theme .app-header {
+    border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .tabs {
+    border-bottom-color: rgba(0, 0, 0, 0.1);
 }
 
 /* Фоновый слой */
@@ -30,7 +111,7 @@ body {
     will-change: background-image;
 }
 
-/* Затемнение — без размытия */
+/* Затемнение */
 .weather-background::after {
     content: '';
     position: absolute;
@@ -99,7 +180,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
     padding: 0.5rem;
-    min-width: 220px;
+    min-width: 200px;
     z-index: 1000;
     display: none;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -149,14 +230,6 @@ body {
 
 .menu-item.active .check {
     opacity: 1;
-}
-
-.proxy-status {
-    font-size: 0.75rem;
-    opacity: 0.5;
-    padding: 0.5rem 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    margin-top: 0.25rem;
 }
 
 .header-content {
@@ -421,10 +494,11 @@ body {
 .loader {
     width: 36px;
     height: 36px;
-    border: 2px solid rgba(255, 255, 255, 0.15);
+    border: 2px solid currentColor;
     border-radius: 50%;
-    border-top-color: rgba(255, 255, 255, 0.8);
+    border-top-color: transparent;
     animation: spin 0.7s linear infinite;
+    opacity: 0.5;
 }
 
 @keyframes spin {
@@ -432,13 +506,17 @@ body {
 }
 
 .error {
-    color: rgba(255, 200, 200, 0.9);
+    color: #ffb3b3;
+}
+
+body.light-theme .error {
+    color: #c0392b;
 }
 
 .retry-btn {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.15);
-    color: white;
+    color: inherit;
     padding: 0.6rem 1.5rem;
     border-radius: 40px;
     font-size: 0.9rem;
@@ -460,7 +538,7 @@ body {
     right: 1.5rem;
     background: rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.15);
-    color: white;
+    color: inherit;
     width: 44px;
     height: 44px;
     border-radius: 30px;

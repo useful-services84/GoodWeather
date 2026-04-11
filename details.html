@@ -13,7 +13,6 @@
     <div class="weather-background" id="bgLayer"></div>
 
     <div class="app-container">
-        <!-- Шапка -->
         <header class="app-header">
             <div class="header-top-row">
                 <button class="menu-btn" id="menuBtn" title="Меню">
@@ -26,28 +25,18 @@
                 <div style="flex: 1;"></div>
             </div>
             
-            <!-- Выпадающее меню -->
             <div class="menu-dropdown" id="menuDropdown">
                 <div class="menu-section">
-                    <div class="menu-section-title">Прокси</div>
-                    <div class="menu-item" data-proxy="auto">
-                        <span>🔄 Автоматически</span>
+                    <div class="menu-section-title">Тема</div>
+                    <div class="menu-item" data-theme="dark">
+                        <span>🌙 Тёмная</span>
                         <span class="check">✓</span>
                     </div>
-                    <div class="menu-item" data-proxy="none">
-                        <span>➖ Без прокси</span>
-                        <span class="check">✓</span>
-                    </div>
-                    <div class="menu-item" data-proxy="allorigins">
-                        <span>🌐 AllOrigins</span>
-                        <span class="check">✓</span>
-                    </div>
-                    <div class="menu-item" data-proxy="thingproxy">
-                        <span>⚡ ThingProxy</span>
+                    <div class="menu-item" data-theme="light">
+                        <span>☀️ Светлая</span>
                         <span class="check">✓</span>
                     </div>
                 </div>
-                <div class="proxy-status" id="proxyStatus">Режим: Авто</div>
             </div>
 
             <div class="header-content">
@@ -65,7 +54,6 @@
             </div>
         </header>
 
-        <!-- Навигация -->
         <div class="tabs-container">
             <div class="tabs">
                 <a href="index.html" class="tab-btn">Прогноз на неделю</a>
@@ -73,7 +61,6 @@
             </div>
         </div>
 
-        <!-- Контент -->
         <main class="content-area">
             <div id="loadingUI" class="status-message">
                 <div class="loader"></div>
