@@ -29,51 +29,51 @@
     let currentLon = null;
 
     function showLoading() {
-        loadingUI.style.display = 'flex';
-        detailsContent.style.display = 'none';
-        errorUI.style.display = 'none';
+        if (loadingUI) loadingUI.style.display = 'flex';
+        if (detailsContent) detailsContent.style.display = 'none';
+        if (errorUI) errorUI.style.display = 'none';
     }
 
     function showContent() {
-        loadingUI.style.display = 'none';
-        detailsContent.style.display = 'block';
-        errorUI.style.display = 'none';
+        if (loadingUI) loadingUI.style.display = 'none';
+        if (detailsContent) detailsContent.style.display = 'block';
+        if (errorUI) errorUI.style.display = 'none';
     }
 
     function showError(msg) {
-        loadingUI.style.display = 'none';
-        detailsContent.style.display = 'none';
-        errorUI.style.display = 'flex';
-        errorText.textContent = msg || 'Неизвестная ошибка';
+        if (loadingUI) loadingUI.style.display = 'none';
+        if (detailsContent) detailsContent.style.display = 'none';
+        if (errorUI) errorUI.style.display = 'flex';
+        if (errorText) errorText.textContent = msg || 'Неизвестная ошибка';
     }
 
     function updateUI(data, locationInfo) {
         const current = data.current;
         const daily = data.daily;
         
-        cityDisplay.textContent = locationInfo.main;
-        regionDisplay.textContent = locationInfo.region;
-        coordsDisplay.textContent = `${currentLat.toFixed(4)}°, ${currentLon.toFixed(4)}°`;
+        if (cityDisplay) cityDisplay.textContent = locationInfo.main;
+        if (regionDisplay) regionDisplay.textContent = locationInfo.region;
+        if (coordsDisplay) coordsDisplay.textContent = `${currentLat.toFixed(4)}°, ${currentLon.toFixed(4)}°`;
         
         const weatherCode = current.weather_code;
-        tempDisplay.textContent = `${Math.round(current.temperature_2m)}°C`;
-        descDisplay.textContent = `${getWeatherEmoji(weatherCode)} ${getWeatherDescription(weatherCode)}`;
+        if (tempDisplay) tempDisplay.textContent = `${Math.round(current.temperature_2m)}°C`;
+        if (descDisplay) descDisplay.textContent = `${getWeatherEmoji(weatherCode)} ${getWeatherDescription(weatherCode)}`;
         
-        updateTimeDisplay.textContent = `Обновлено: ${getCurrentTimeString()}`;
+        if (updateTimeDisplay) updateTimeDisplay.textContent = `Обновлено: ${getCurrentTimeString()}`;
         
         updateBackground(weatherCode);
         
-        feelsLikeDisplay.textContent = Math.round(current.apparent_temperature);
-        humidityDisplay.textContent = Math.round(current.relative_humidity_2m);
-        windSpeedDisplay.textContent = current.wind_speed_10m.toFixed(1);
-        windDirDisplay.textContent = getWindDirection(current.wind_direction_10m);
-        windGustDisplay.textContent = current.wind_gusts_10m?.toFixed(1) || '—';
-        cloudDisplay.textContent = Math.round(current.cloud_cover);
-        visibilityDisplay.textContent = (current.visibility / 1000).toFixed(1);
-        pressureDisplay.textContent = hPaToMmHg(current.surface_pressure);
-        precipDisplay.textContent = current.precipitation?.toFixed(1) || '0.0';
-        sunriseDisplay.textContent = formatTime(daily.sunrise[0]);
-        sunsetDisplay.textContent = formatTime(daily.sunset[0]);
+        if (feelsLikeDisplay) feelsLikeDisplay.textContent = Math.round(current.apparent_temperature);
+        if (humidityDisplay) humidityDisplay.textContent = Math.round(current.relative_humidity_2m);
+        if (windSpeedDisplay) windSpeedDisplay.textContent = current.wind_speed_10m.toFixed(1);
+        if (windDirDisplay) windDirDisplay.textContent = getWindDirection(current.wind_direction_10m);
+        if (windGustDisplay) windGustDisplay.textContent = current.wind_gusts_10m?.toFixed(1) || '—';
+        if (cloudDisplay) cloudDisplay.textContent = Math.round(current.cloud_cover);
+        if (visibilityDisplay) visibilityDisplay.textContent = (current.visibility / 1000).toFixed(1);
+        if (pressureDisplay) pressureDisplay.textContent = hPaToMmHg(current.surface_pressure);
+        if (precipDisplay) precipDisplay.textContent = current.precipitation?.toFixed(1) || '0.0';
+        if (sunriseDisplay && daily.sunrise) sunriseDisplay.textContent = formatTime(daily.sunrise[0]);
+        if (sunsetDisplay && daily.sunset) sunsetDisplay.textContent = formatTime(daily.sunset[0]);
     }
 
     async function loadWeatherData() {
@@ -91,22 +91,25 @@
             updateUI(weatherData, locationInfo);
             showContent();
         } catch (error) {
-            console.error(error);
+            console.error('Ошибка загрузки:', error);
             showError(error.message);
         }
     }
 
     window.loadWeatherData = loadWeatherData;
 
-    document.getElementById('refreshBtn').addEventListener('click', loadWeatherData);
-    document.getElementById('errorRetryBtn').addEventListener('click', loadWeatherData);
+    const refreshBtn = document.getElementById('refreshBtn');
+    const errorRetryBtn = document.getElementById('errorRetryBtn');
+    
+    if (refreshBtn) refreshBtn.addEventListener('click', loadWeatherData);
+    if (errorRetryBtn) errorRetryBtn.addEventListener('click', loadWeatherData);
 
     initTheme();
     initMenu();
     loadWeatherData();
 
     setInterval(() => {
-        if (currentLat && currentLon && errorUI.style.display === 'none') {
+        if (currentLat && currentLon && errorUI && errorUI.style.display === 'none') {
             loadWeatherData();
         }
     }, 30 * 60 * 1000);

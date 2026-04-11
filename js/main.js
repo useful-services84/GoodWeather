@@ -18,58 +18,60 @@
     let currentLon = null;
 
     function showLoading() {
-        loadingUI.style.display = 'flex';
-        forecastContent.style.display = 'none';
-        errorUI.style.display = 'none';
+        if (loadingUI) loadingUI.style.display = 'flex';
+        if (forecastContent) forecastContent.style.display = 'none';
+        if (errorUI) errorUI.style.display = 'none';
     }
 
     function showContent() {
-        loadingUI.style.display = 'none';
-        forecastContent.style.display = 'block';
-        errorUI.style.display = 'none';
+        if (loadingUI) loadingUI.style.display = 'none';
+        if (forecastContent) forecastContent.style.display = 'block';
+        if (errorUI) errorUI.style.display = 'none';
     }
 
     function showError(msg) {
-        loadingUI.style.display = 'none';
-        forecastContent.style.display = 'none';
-        errorUI.style.display = 'flex';
-        errorText.textContent = msg || 'Неизвестная ошибка';
+        if (loadingUI) loadingUI.style.display = 'none';
+        if (forecastContent) forecastContent.style.display = 'none';
+        if (errorUI) errorUI.style.display = 'flex';
+        if (errorText) errorText.textContent = msg || 'Неизвестная ошибка';
     }
 
     function updateUI(data, locationInfo) {
         const current = data.current;
         const daily = data.daily;
         
-        cityDisplay.textContent = locationInfo.main;
-        regionDisplay.textContent = locationInfo.region;
-        coordsDisplay.textContent = `${currentLat.toFixed(4)}°, ${currentLon.toFixed(4)}°`;
+        if (cityDisplay) cityDisplay.textContent = locationInfo.main;
+        if (regionDisplay) regionDisplay.textContent = locationInfo.region;
+        if (coordsDisplay) coordsDisplay.textContent = `${currentLat.toFixed(4)}°, ${currentLon.toFixed(4)}°`;
         
         const weatherCode = current.weather_code;
-        tempDisplay.textContent = `${Math.round(current.temperature_2m)}°C`;
-        descDisplay.textContent = `${getWeatherEmoji(weatherCode)} ${getWeatherDescription(weatherCode)}`;
+        if (tempDisplay) tempDisplay.textContent = `${Math.round(current.temperature_2m)}°C`;
+        if (descDisplay) descDisplay.textContent = `${getWeatherEmoji(weatherCode)} ${getWeatherDescription(weatherCode)}`;
         
-        updateTimeDisplay.textContent = `Обновлено: ${getCurrentTimeString()}`;
+        if (updateTimeDisplay) updateTimeDisplay.textContent = `Обновлено: ${getCurrentTimeString()}`;
         
         updateBackground(weatherCode);
         
-        forecastScroll.innerHTML = '';
-        
-        for (let i = 0; i < daily.time.length; i++) {
-            const date = new Date(daily.time[i]);
-            const dayName = i === 0 ? 'Сегодня' : date.toLocaleDateString('ru-RU', { weekday: 'short' });
-            const dayDate = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-            const code = daily.weather_code[i];
+        if (forecastScroll) {
+            forecastScroll.innerHTML = '';
             
-            const card = document.createElement('div');
-            card.className = 'forecast-card';
-            card.innerHTML = `
-                <div class="forecast-day">${dayName}</div>
-                <div class="forecast-date">${dayDate}</div>
-                <div class="forecast-icon">${getWeatherEmoji(code)}</div>
-                <div class="forecast-temp-max">${Math.round(daily.temperature_2m_max[i])}°</div>
-                <div class="forecast-temp-min">${Math.round(daily.temperature_2m_min[i])}°</div>
-            `;
-            forecastScroll.appendChild(card);
+            for (let i = 0; i < daily.time.length; i++) {
+                const date = new Date(daily.time[i]);
+                const dayName = i === 0 ? 'Сегодня' : date.toLocaleDateString('ru-RU', { weekday: 'short' });
+                const dayDate = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+                const code = daily.weather_code[i];
+                
+                const card = document.createElement('div');
+                card.className = 'forecast-card';
+                card.innerHTML = `
+                    <div class="forecast-day">${dayName}</div>
+                    <div class="forecast-date">${dayDate}</div>
+                    <div class="forecast-icon">${getWeatherEmoji(code)}</div>
+                    <div class="forecast-temp-max">${Math.round(daily.temperature_2m_max[i])}°</div>
+                    <div class="forecast-temp-min">${Math.round(daily.temperature_2m_min[i])}°</div>
+                `;
+                forecastScroll.appendChild(card);
+            }
         }
     }
 
@@ -88,23 +90,25 @@
             updateUI(weatherData, locationInfo);
             showContent();
         } catch (error) {
-            console.error(error);
+            console.error('Ошибка загрузки:', error);
             showError(error.message);
-            document.getElementById('bgLayer').style.backgroundImage = 'linear-gradient(145deg, #1e3c72, #2a5298)';
         }
     }
 
     window.loadWeatherData = loadWeatherData;
 
-    document.getElementById('refreshBtn').addEventListener('click', loadWeatherData);
-    document.getElementById('errorRetryBtn').addEventListener('click', loadWeatherData);
+    const refreshBtn = document.getElementById('refreshBtn');
+    const errorRetryBtn = document.getElementById('errorRetryBtn');
+    
+    if (refreshBtn) refreshBtn.addEventListener('click', loadWeatherData);
+    if (errorRetryBtn) errorRetryBtn.addEventListener('click', loadWeatherData);
 
     initTheme();
     initMenu();
     loadWeatherData();
 
     setInterval(() => {
-        if (currentLat && currentLon && errorUI.style.display === 'none') {
+        if (currentLat && currentLon && errorUI && errorUI.style.display === 'none') {
             loadWeatherData();
         }
     }, 30 * 60 * 1000);
