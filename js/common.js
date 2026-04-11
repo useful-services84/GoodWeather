@@ -12,7 +12,7 @@ const WEATHER_BG_MAP = {
 };
 
 // API через Cloudflare Worker
-const API_BASE_URL = 'https://vpn.matvey-gadackiy2011.workers.dev/v1';
+const API_BASE_URL = 'https://vpn.matvey-gadackiy2011.workers.dev';
 
 // Тема
 let currentTheme = localStorage.getItem('theme') || 'dark';
