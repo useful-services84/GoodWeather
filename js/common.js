@@ -19,7 +19,7 @@ const API_URLS = [
 let currentTheme = localStorage.getItem('theme') || 'light';
 let emojiSet = localStorage.getItem('emojiSet') || 'system';
 
-// SVG-эмодзи
+// SVG-эмодзи Microsoft Fluent
 const FLUENT_SVG_MAP = {
     0: 'Sun.svg',
     1: 'Sun behind small cloud.svg',
@@ -44,6 +44,9 @@ const SYSTEM_EMOJIS = {
     85: '❄️', 86: '❄️',
     95: '⛈️', 96: '⛈️', 99: '⛈️'
 };
+
+// Время последнего заката (для определения ночи)
+let sunsetTime = null;
 
 function getWeatherCategory(code) {
     if (code === 0) return 'clear';
@@ -72,12 +75,30 @@ function getWeatherDescription(code) {
     return map[code] || 'Неизвестно';
 }
 
+function isNight() {
+    if (!sunsetTime) return false;
+    const now = new Date();
+    const sunset = new Date(sunsetTime);
+    sunset.setMinutes(sunset.getMinutes() + 30); // +30 минут после заката
+    return now > sunset;
+}
+
 function getWeatherEmojiHtml(code) {
+    let finalCode = code;
+    // Если ясно (code 0) и сейчас ночь — показываем луну
+    if (code === 0 && isNight()) {
+        if (emojiSet === 'fluent') {
+            return `<img src="emoji/Crescent moon.svg" alt="" style="width:100%;height:100%;">`;
+        } else {
+            return '🌙';
+        }
+    }
+    
     if (emojiSet === 'fluent') {
-        const svgFile = FLUENT_SVG_MAP[code] || 'Cloud.svg';
-        return `<img src="emoji/${svgFile}" alt="" style="width:100%;height:100%;">`;
+        const svgFile = FLUENT_SVG_MAP[finalCode] || 'Cloud.svg';
+        return `<img src="emoji/${svgFile}" alt="" style="width:100%;height:100%;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">`;
     } else {
-        return SYSTEM_EMOJIS[code] || '🌡️';
+        return SYSTEM_EMOJIS[finalCode] || '🌡️';
     }
 }
 
@@ -94,18 +115,12 @@ function updateBackground(code) {
     const imageUrl = WEATHER_BG_MAP[category] || WEATHER_BG_MAP.default;
     
     const fallbackColors = {
-        clear: '#4facfe',
-        partly_cloudy: '#6b8cce',
-        cloudy: '#5f6c7a',
-        fog: '#b0bec5',
-        rain: '#3a4e6b',
-        snow: '#e0eaf5',
-        thunderstorm: '#2c3e50',
-        default: '#2b5876'
+        clear: '#4facfe', partly_cloudy: '#6b8cce', cloudy: '#5f6c7a',
+        fog: '#b0bec5', rain: '#3a4e6b', snow: '#e0eaf5',
+        thunderstorm: '#2c3e50', default: '#2b5876'
     };
     
     bgLayer.style.backgroundImage = `url('${imageUrl}')`;
-    
     const img = new Image();
     img.onerror = () => {
         bgLayer.style.backgroundImage = `linear-gradient(145deg, ${fallbackColors[category]}, ${fallbackColors[category]}dd)`;
@@ -115,13 +130,10 @@ function updateBackground(code) {
 
 async function requestLocation() {
     return new Promise((resolve, reject) => {
-        if (!navigator.geolocation) {
-            reject(new Error('Геолокация не поддерживается'));
-            return;
-        }
+        if (!navigator.geolocation) return reject(new Error('Геолокация не поддерживается'));
         navigator.geolocation.getCurrentPosition(
-            (pos) => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
-            (err) => reject(new Error('Не удалось получить геолокацию')),
+            pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+            err => reject(new Error('Не удалось получить геолокацию')),
             { enableHighAccuracy: false, timeout: 10000 }
         );
     });
@@ -130,17 +142,12 @@ async function requestLocation() {
 async function reverseGeocode(lat, lon) {
     try {
         const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=ru`;
-        const response = await fetch(url);
-        const data = await response.json();
+        const resp = await fetch(url);
+        const data = await resp.json();
         const address = data.address || {};
         const city = address.city || address.town || address.village || '';
         const state = address.state || '';
-        
-        return {
-            main: city || 'Неизвестный пункт',
-            region: state,
-            fullDisplay: `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`
-        };
+        return { main: city || 'Неизвестный пункт', region: state, fullDisplay: `${lat.toFixed(4)}°, ${lon.toFixed(4)}°` };
     } catch (e) {
         return { main: 'Местоположение', region: '', fullDisplay: `${lat.toFixed(4)}°, ${lon.toFixed(4)}°` };
     }
@@ -154,11 +161,17 @@ async function fetchWeatherData(lat, lon) {
         hourly: 'temperature_2m,weather_code',
         timezone: 'auto', forecast_days: 7
     });
-
     for (const baseUrl of API_URLS) {
         try {
-            const response = await fetch(`${baseUrl}?${params.toString()}`);
-            if (response.ok) return await response.json();
+            const resp = await fetch(`${baseUrl}?${params.toString()}`);
+            if (resp.ok) {
+                const data = await resp.json();
+                // Сохраняем время заката
+                if (data.daily && data.daily.sunset && data.daily.sunset[0]) {
+                    sunsetTime = data.daily.sunset[0];
+                }
+                return data;
+            }
         } catch (e) {}
     }
     throw new Error('API недоступен');
@@ -189,10 +202,9 @@ function initMenu() {
     const btn = document.getElementById('menuBtn');
     const dd = document.getElementById('menuDropdown');
     if (!btn || !dd) return;
-    
-    btn.onclick = (e) => { e.stopPropagation(); dd.classList.toggle('show'); };
+    btn.onclick = e => { e.stopPropagation(); dd.classList.toggle('show'); };
     document.onclick = () => dd.classList.remove('show');
-    dd.onclick = (e) => e.stopPropagation();
+    dd.onclick = e => e.stopPropagation();
     
     document.querySelectorAll('.menu-section-title').forEach(t => {
         t.onclick = () => t.closest('.menu-section').classList.toggle('expanded');

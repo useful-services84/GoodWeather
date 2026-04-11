@@ -62,7 +62,6 @@
             circles += `<circle cx="${p.x}" cy="${p.y}" r="4" class="chart-point"/>`;
             labels += `<text x="${p.x}" y="${p.y - 8}" class="chart-label">${Math.round(temps[i])}°</text>`;
         });
-        
         chartSvg.innerHTML = `<path d="${path}" class="chart-line"/>${circles}${labels}`;
     }
 
