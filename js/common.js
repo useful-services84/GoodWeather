@@ -229,15 +229,6 @@ function initMenu() {
     updateThemeMenu();
 }
 
-// Слушаем изменения темы из других вкладок
-window.addEventListener('storage', (e) => {
-    if (e.key === 'theme') {
-        currentTheme = e.newValue || 'dark';
-        initTheme();
-        updateThemeMenu();
-    }
-});
-
 // Экспорт
 window.initTheme = initTheme;
 window.initMenu = initMenu;

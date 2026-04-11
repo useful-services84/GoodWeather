@@ -87,7 +87,7 @@
 
             const [locationInfo, weatherData] = await Promise.all([
                 reverseGeocode(currentLat, currentLon),
-                fetchWeatherData(currentLat, currentLon)  // Убрали лишний параметр
+                fetchWeatherData(currentLat, currentLon)
             ]);
             
             updateUI(weatherData, locationInfo);
@@ -95,6 +95,7 @@
         } catch (error) {
             console.error(error);
             showError(error.message);
+            document.getElementById('bgLayer').style.backgroundImage = 'linear-gradient(145deg, #1e3c72, #2a5298)';
         }
     }
 
