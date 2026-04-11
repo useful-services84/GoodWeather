@@ -74,13 +74,8 @@
         uvDisplay.textContent = current.uv_index?.toFixed(1) || '—';
         pressureDisplay.textContent = hPaToMmHg(current.surface_pressure);
         precipDisplay.textContent = current.precipitation?.toFixed(1) || '0.0';
-        
-        if (daily.sunrise && daily.sunrise[0]) {
-            sunriseDisplay.textContent = formatTime(daily.sunrise[0]);
-        }
-        if (daily.sunset && daily.sunset[0]) {
-            sunsetDisplay.textContent = formatTime(daily.sunset[0]);
-        }
+        sunriseDisplay.textContent = formatTime(daily.sunrise?.[0]);
+        sunsetDisplay.textContent = formatTime(daily.sunset?.[0]);
     }
 
     async function loadWeatherData() {
@@ -92,13 +87,13 @@
 
             const [locationInfo, weatherData] = await Promise.all([
                 reverseGeocode(currentLat, currentLon),
-                fetchWeatherData(currentLat, currentLon, 'dwd-icon')
+                fetchWeatherData(currentLat, currentLon)
             ]);
             
             updateUI(weatherData, locationInfo);
             showContent();
         } catch (error) {
-            console.error(error);
+            console.error('Ошибка загрузки:', error);
             showError(error.message);
         }
     }

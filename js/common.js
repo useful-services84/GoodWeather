@@ -11,7 +11,7 @@ const WEATHER_BG_MAP = {
     default: 'img/default.jpg'
 };
 
-// API через Cloudflare Worker
+// API через Cloudflare Worker — точный URL, который работал
 const API_BASE_URL = 'https://vpn.matvey-gadackiy2011.workers.dev/v1/dwd-icon';
 
 // Тема
@@ -135,7 +135,7 @@ async function reverseGeocode(lat, lon) {
     }
 }
 
-async function fetchWeatherData(lat, lon, endpoint = 'dwd-icon') {
+async function fetchWeatherData(lat, lon) {
     const params = new URLSearchParams({
         latitude: lat,
         longitude: lon,
@@ -145,7 +145,8 @@ async function fetchWeatherData(lat, lon, endpoint = 'dwd-icon') {
         forecast_days: 7
     });
 
-    const url = `${API_BASE_URL}/${endpoint}?${params.toString()}`;
+    const url = `${API_BASE_URL}?${params.toString()}`;
+    console.log('Fetching:', url); // Для отладки
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Ошибка API: ${response.status}`);
     return await response.json();
@@ -156,6 +157,7 @@ function hPaToMmHg(hPa) {
 }
 
 function formatTime(isoString) {
+    if (!isoString) return '--:--';
     const date = new Date(isoString);
     return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 }
@@ -179,10 +181,7 @@ function toggleTheme() {
     currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('theme', currentTheme);
     
-    // Применяем тему на всех открытых страницах (если есть)
     document.body.classList.toggle('light-theme', currentTheme === 'light');
-    
-    // Отправляем событие для синхронизации между вкладками
     localStorage.setItem('theme_sync', Date.now());
     
     updateThemeMenu();
@@ -220,7 +219,6 @@ function initMenu() {
         e.stopPropagation();
     });
     
-    // Обработчики темы
     const themeItems = document.querySelectorAll('.menu-item[data-theme]');
     themeItems.forEach(item => {
         item.addEventListener('click', () => {
