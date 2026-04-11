@@ -2,72 +2,46 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>GoodWeather · Прогноз</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoodWeather</title>
     <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="light-theme">
     <div class="weather-background" id="bgLayer"></div>
-
     <div class="app-container">
         <header class="app-header">
             <div class="header-top-row">
-                <button class="menu-btn" id="menuBtn" title="Меню">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="3" y1="12" x2="21" y2="12"></line>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                <button class="menu-btn" id="menuBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12"/>
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <line x1="3" y1="18" x2="21" y2="18"/>
                     </svg>
                 </button>
-                <div style="flex: 1;"></div>
             </div>
-            
             <div class="menu-dropdown" id="menuDropdown">
                 <div class="menu-section expanded">
-                    <div class="menu-section-title">
-                        <span>Тема</span>
-                        <span class="arrow">›</span>
-                    </div>
+                    <div class="menu-section-title"><span>Тема</span><span class="arrow">›</span></div>
                     <div class="menu-items">
-                        <div class="menu-item" data-theme="light">
-                            <span>Светлая</span>
-                            <span class="check">✓</span>
-                        </div>
-                        <div class="menu-item" data-theme="dark">
-                            <span>Тёмная</span>
-                            <span class="check">✓</span>
-                        </div>
+                        <div class="menu-item" data-theme="light"><span>Светлая</span><span class="check">✓</span></div>
+                        <div class="menu-item" data-theme="dark"><span>Тёмная</span><span class="check">✓</span></div>
                     </div>
                 </div>
                 <div class="menu-section expanded">
-                    <div class="menu-section-title">
-                        <span>Эмодзи</span>
-                        <span class="arrow">›</span>
-                    </div>
+                    <div class="menu-section-title"><span>Эмодзи</span><span class="arrow">›</span></div>
                     <div class="menu-items">
-                        <div class="menu-item" data-emoji="system">
-                            <span>Системные</span>
-                            <span class="check">✓</span>
-                        </div>
-                        <div class="menu-item" data-emoji="fluent">
-                            <span>Microsoft Fluent</span>
-                            <span class="check">✓</span>
-                        </div>
+                        <div class="menu-item" data-emoji="system"><span>Системные</span><span class="check">✓</span></div>
+                        <div class="menu-item" data-emoji="fluent"><span>Fluent</span><span class="check">✓</span></div>
                     </div>
                 </div>
             </div>
-
             <div class="header-content">
                 <div class="location-row">
                     <h1 class="city-name" id="cityDisplay">—</h1>
                     <span class="region-name" id="regionDisplay"></span>
                 </div>
                 <div class="coordinates" id="coordsDisplay"></div>
-                
                 <div class="weather-status-row">
                     <div class="temp-section">
                         <span class="temp-current" id="tempDisplay">--°</span>
@@ -78,57 +52,38 @@
                 </div>
             </div>
         </header>
-
         <div class="tabs-container">
             <div class="tabs">
-                <a href="index.html" class="tab-btn active">Прогноз на неделю</a>
+                <a href="index.html" class="tab-btn active">Прогноз</a>
                 <a href="details.html" class="tab-btn">Подробности</a>
             </div>
         </div>
-
         <main class="content-area">
-            <div id="loadingUI" class="status-message">
-                <div class="loader"></div>
-                <p>Загружаем прогноз погоды…</p>
-            </div>
-
-            <!-- Основной вид: прогноз на неделю -->
+            <div id="loadingUI" class="status-message"><div class="loader"></div><p>Загрузка...</p></div>
             <div id="forecastView" class="forecast-view">
                 <h2 class="section-title">7 дней</h2>
                 <div class="forecast-scroll" id="forecastScroll"></div>
             </div>
-
-            <!-- Вид: почасовой прогноз -->
             <div id="hourlyView" class="hourly-view">
                 <button class="back-btn" id="backBtn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M15 18l-6-6 6-6"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
                     Назад
                 </button>
-                <h2 class="section-title" id="hourlyTitle">Почасовой прогноз</h2>
-                <div class="temp-chart-container">
-                    <div class="temp-chart">
-                        <svg class="chart-svg" id="chartSvg" viewBox="0 0 600 100" preserveAspectRatio="none"></svg>
-                    </div>
-                </div>
+                <h2 class="section-title" id="hourlyTitle"></h2>
+                <div class="temp-chart-container"><div class="temp-chart"><svg class="chart-svg" id="chartSvg"></svg></div></div>
                 <div class="hourly-scroll" id="hourlyScroll"></div>
             </div>
-
-            <div id="errorUI" class="status-message error" style="display: none;">
-                <p>Не удалось загрузить данные</p>
-                <p id="errorText"></p>
+            <div id="errorUI" class="status-message error" style="display:none">
+                <p>Ошибка</p><p id="errorText"></p>
                 <button class="retry-btn" id="errorRetryBtn">Попробовать снова</button>
             </div>
         </main>
     </div>
-
-    <button class="refresh-btn" id="refreshBtn" title="Обновить">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <button class="refresh-btn" id="refreshBtn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
         </svg>
     </button>
-
     <script src="js/common.js"></script>
     <script src="js/main.js"></script>
 </body>
