@@ -18,8 +18,8 @@ const API_URLS = [
     'https://api.open-meteo.com/v1/forecast'
 ];
 
-// Тема
-let currentTheme = localStorage.getItem('theme') || 'dark';
+// Тема — СВЕТЛАЯ ПО УМОЛЧАНИЮ
+let currentTheme = localStorage.getItem('theme') || 'light';
 
 function getWeatherCategory(code) {
     if (code === 0) return 'clear';
@@ -72,9 +72,14 @@ function updateBackground(code) {
     if (!bgLayer) return;
     
     const category = getWeatherCategory(code);
-    const imageUrl = WEATHER_BG_MAP[category] || WEATHER_BG_MAP.default;
+    let imageUrl = WEATHER_BG_MAP[category] || WEATHER_BG_MAP.default;
     
-    // Всегда сначала ставим фолбэк-цвет
+    // Исправляем путь для локальных файлов
+    if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
+        imageUrl = imageUrl.replace(/^\//, '');
+    }
+    
+    // Фолбэк-цвета
     const fallbackColors = {
         clear: 'linear-gradient(145deg, #4facfe 0%, #00f2fe 100%)',
         partly_cloudy: 'linear-gradient(145deg, #6b8cce 0%, #b8c6db 100%)',
@@ -94,6 +99,9 @@ function updateBackground(code) {
         const img = new Image();
         img.onload = () => {
             bgLayer.style.backgroundImage = `url('${imageUrl}')`;
+        };
+        img.onerror = () => {
+            console.warn('Не удалось загрузить изображение:', imageUrl);
         };
         img.src = imageUrl;
     }
@@ -254,7 +262,7 @@ function initMenu() {
 
 window.addEventListener('storage', (e) => {
     if (e.key === 'theme') {
-        currentTheme = e.newValue || 'dark';
+        currentTheme = e.newValue || 'light';
         initTheme();
         updateThemeMenu();
     }
