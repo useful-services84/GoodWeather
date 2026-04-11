@@ -11,15 +11,7 @@
     <div class="weather-background" id="bgLayer"></div>
     <div class="app-container">
         <header class="app-header">
-            <div class="header-top-row">
-                <button class="menu-btn" id="menuBtn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="3" y1="12" x2="21" y2="12"/>
-                        <line x1="3" y1="6" x2="21" y2="6"/>
-                        <line x1="3" y1="18" x2="21" y2="18"/>
-                    </svg>
-                </button>
-            </div>
+            <div class="header-top-row"><button class="menu-btn" id="menuBtn">☰</button></div>
             <div class="menu-dropdown" id="menuDropdown">
                 <div class="menu-section expanded">
                     <div class="menu-section-title"><span>Тема</span><span class="arrow">›</span></div>
@@ -37,26 +29,17 @@
                 </div>
             </div>
             <div class="header-content">
-                <div class="location-row">
-                    <h1 class="city-name" id="cityDisplay">—</h1>
-                    <span class="region-name" id="regionDisplay"></span>
-                </div>
+                <div class="location-row"><h1 class="city-name" id="cityDisplay">—</h1><span class="region-name" id="regionDisplay"></span></div>
                 <div class="coordinates" id="coordsDisplay"></div>
                 <div class="weather-status-row">
-                    <div class="temp-section">
-                        <span class="temp-current" id="tempDisplay">--°</span>
-                        <span class="feels-like" id="feelsLikeHeader">Ощущается как --°</span>
-                    </div>
+                    <div class="temp-section"><span class="temp-current" id="tempDisplay">--°</span><span class="feels-like" id="feelsLikeHeader">Ощущается как --°</span></div>
                     <span class="weather-desc" id="descDisplay">---</span>
                     <span class="update-badge" id="updateTimeDisplay"></span>
                 </div>
             </div>
         </header>
         <div class="tabs-container">
-            <div class="tabs">
-                <a href="index.html" class="tab-btn active">Прогноз</a>
-                <a href="details.html" class="tab-btn">Подробности</a>
-            </div>
+            <div class="tabs"><a href="index.html" class="tab-btn active">Прогноз</a><a href="details.html" class="tab-btn">Подробности</a></div>
         </div>
         <main class="content-area">
             <div id="loadingUI" class="status-message"><div class="loader"></div><p>Загрузка...</p></div>
@@ -65,25 +48,15 @@
                 <div class="forecast-scroll" id="forecastScroll"></div>
             </div>
             <div id="hourlyView" class="hourly-view">
-                <button class="back-btn" id="backBtn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-                    Назад
-                </button>
+                <button class="back-btn" id="backBtn">← Назад</button>
                 <h2 class="section-title" id="hourlyTitle"></h2>
                 <div class="temp-chart-container"><div class="temp-chart"><svg class="chart-svg" id="chartSvg"></svg></div></div>
                 <div class="hourly-scroll" id="hourlyScroll"></div>
             </div>
-            <div id="errorUI" class="status-message error" style="display:none">
-                <p>Ошибка</p><p id="errorText"></p>
-                <button class="retry-btn" id="errorRetryBtn">Попробовать снова</button>
-            </div>
+            <div id="errorUI" class="status-message error" style="display:none"><p>Ошибка</p><p id="errorText"></p><button class="retry-btn" id="errorRetryBtn">Попробовать снова</button></div>
         </main>
     </div>
-    <button class="refresh-btn" id="refreshBtn">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-        </svg>
-    </button>
+    <button class="refresh-btn" id="refreshBtn">↻</button>
     <script src="js/common.js"></script>
     <script src="js/main.js"></script>
 </body>

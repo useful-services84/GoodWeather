@@ -11,13 +11,7 @@
     <div class="weather-background" id="bgLayer"></div>
     <div class="app-container">
         <header class="app-header">
-            <div class="header-top-row">
-                <button class="menu-btn" id="menuBtn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
-                    </svg>
-                </button>
-            </div>
+            <div class="header-top-row"><button class="menu-btn" id="menuBtn">☰</button></div>
             <div class="menu-dropdown" id="menuDropdown">
                 <div class="menu-section expanded">
                     <div class="menu-section-title"><span>Тема</span><span class="arrow">›</span></div>
@@ -66,9 +60,7 @@
             <div id="errorUI" class="status-message error" style="display:none"><p>Ошибка</p><p id="errorText"></p><button class="retry-btn" id="errorRetryBtn">Попробовать снова</button></div>
         </main>
     </div>
-    <button class="refresh-btn" id="refreshBtn">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-    </button>
+    <button class="refresh-btn" id="refreshBtn">↻</button>
     <script src="js/common.js"></script>
     <script src="js/details.js"></script>
 </body>
