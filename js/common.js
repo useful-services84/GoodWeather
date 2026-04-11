@@ -11,8 +11,12 @@ const WEATHER_BG_MAP = {
     default: 'img/default.jpg'
 };
 
-// Ваш Cloudflare Worker
-const API_BASE_URL = 'https://vpn.matvey-gadackiy2011.workers.dev/v1/dwd-icon';
+// Список API для попыток
+const API_URLS = [
+    'https://api.open-meteo.com/v1/dwd-icon',
+    'https://vpn.matvey-gadackiy2011.workers.dev/v1/dwd-icon',
+    'https://api.open-meteo.com/v1/forecast'
+];
 
 // Тема
 let currentTheme = localStorage.getItem('theme') || 'dark';
@@ -145,10 +149,26 @@ async function fetchWeatherData(lat, lon) {
         forecast_days: 7
     });
 
-    const url = `${API_BASE_URL}?${params.toString()}`;
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`Ошибка API: ${response.status}`);
-    return await response.json();
+    for (const baseUrl of API_URLS) {
+        try {
+            const url = `${baseUrl}?${params.toString()}`;
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+            
+            const response = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (e) {
+            console.warn('Не удалось через:', baseUrl);
+            continue;
+        }
+    }
+    
+    throw new Error('Все источники API недоступны');
 }
 
 function hPaToMmHg(hPa) {
@@ -165,7 +185,6 @@ function getCurrentTimeString() {
     return now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 }
 
-// Инициализация темы
 function initTheme() {
     if (currentTheme === 'light') {
         document.body.classList.add('light-theme');
@@ -174,7 +193,6 @@ function initTheme() {
     }
 }
 
-// Переключение темы
 function toggleTheme() {
     currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('theme', currentTheme);
@@ -182,7 +200,6 @@ function toggleTheme() {
     updateThemeMenu();
 }
 
-// Обновление меню темы
 function updateThemeMenu() {
     const themeItems = document.querySelectorAll('.menu-item[data-theme]');
     themeItems.forEach(item => {
@@ -194,7 +211,6 @@ function updateThemeMenu() {
     });
 }
 
-// Инициализация меню
 function initMenu() {
     const menuBtn = document.getElementById('menuBtn');
     const menuDropdown = document.getElementById('menuDropdown');
@@ -214,7 +230,6 @@ function initMenu() {
         e.stopPropagation();
     });
     
-    // Обработчики темы
     const themeItems = document.querySelectorAll('.menu-item[data-theme]');
     themeItems.forEach(item => {
         item.addEventListener('click', () => {
@@ -229,7 +244,14 @@ function initMenu() {
     updateThemeMenu();
 }
 
-// Экспорт
+window.addEventListener('storage', (e) => {
+    if (e.key === 'theme') {
+        currentTheme = e.newValue || 'dark';
+        initTheme();
+        updateThemeMenu();
+    }
+});
+
 window.initTheme = initTheme;
 window.initMenu = initMenu;
 window.toggleTheme = toggleTheme;
