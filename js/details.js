@@ -20,7 +20,6 @@
     const windGustDisplay = document.getElementById('windGustDisplay');
     const cloudDisplay = document.getElementById('cloudDisplay');
     const visibilityDisplay = document.getElementById('visibilityDisplay');
-    const uvDisplay = document.getElementById('uvDisplay');
     const pressureDisplay = document.getElementById('pressureDisplay');
     const precipDisplay = document.getElementById('precipDisplay');
     const sunriseDisplay = document.getElementById('sunriseDisplay');
@@ -71,7 +70,6 @@
         windGustDisplay.textContent = current.wind_gusts_10m?.toFixed(1) || '—';
         cloudDisplay.textContent = Math.round(current.cloud_cover);
         visibilityDisplay.textContent = (current.visibility / 1000).toFixed(1);
-        uvDisplay.textContent = current.uv_index?.toFixed(1) || '—';
         pressureDisplay.textContent = hPaToMmHg(current.surface_pressure);
         precipDisplay.textContent = current.precipitation?.toFixed(1) || '0.0';
         sunriseDisplay.textContent = formatTime(daily.sunrise[0]);
@@ -95,7 +93,6 @@
         } catch (error) {
             console.error(error);
             showError(error.message);
-            document.getElementById('bgLayer').style.backgroundImage = 'linear-gradient(145deg, #1e3c72, #2a5298)';
         }
     }
 

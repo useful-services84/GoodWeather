@@ -74,20 +74,28 @@ function updateBackground(code) {
     const category = getWeatherCategory(code);
     const imageUrl = WEATHER_BG_MAP[category] || WEATHER_BG_MAP.default;
     
+    // Всегда сначала ставим фолбэк-цвет
+    const fallbackColors = {
+        clear: 'linear-gradient(145deg, #4facfe 0%, #00f2fe 100%)',
+        partly_cloudy: 'linear-gradient(145deg, #6b8cce 0%, #b8c6db 100%)',
+        cloudy: 'linear-gradient(145deg, #5f6c7a 0%, #919ba7 100%)',
+        fog: 'linear-gradient(145deg, #b0bec5 0%, #cfd8dc 100%)',
+        rain: 'linear-gradient(145deg, #3a4e6b 0%, #5f7a9f 100%)',
+        snow: 'linear-gradient(145deg, #e0eaf5 0%, #b0c4de 100%)',
+        thunderstorm: 'linear-gradient(145deg, #2c3e50 0%, #4a6274 100%)',
+        default: 'linear-gradient(145deg, #2b5876 0%, #4e4376 100%)'
+    };
+    
+    // Ставим фолбэк
+    bgLayer.style.backgroundImage = fallbackColors[category] || fallbackColors.default;
+    
+    // Пробуем загрузить изображение
     if (imageUrl) {
-        bgLayer.style.backgroundImage = `url('${imageUrl}')`;
-    } else {
-        const fallbackColors = {
-            clear: 'linear-gradient(145deg, #4facfe 0%, #00f2fe 100%)',
-            partly_cloudy: 'linear-gradient(145deg, #6b8cce 0%, #b8c6db 100%)',
-            cloudy: 'linear-gradient(145deg, #5f6c7a 0%, #919ba7 100%)',
-            fog: 'linear-gradient(145deg, #b0bec5 0%, #cfd8dc 100%)',
-            rain: 'linear-gradient(145deg, #3a4e6b 0%, #5f7a9f 100%)',
-            snow: 'linear-gradient(145deg, #e0eaf5 0%, #b0c4de 100%)',
-            thunderstorm: 'linear-gradient(145deg, #2c3e50 0%, #4a6274 100%)',
-            default: 'linear-gradient(145deg, #2b5876 0%, #4e4376 100%)'
+        const img = new Image();
+        img.onload = () => {
+            bgLayer.style.backgroundImage = `url('${imageUrl}')`;
         };
-        bgLayer.style.backgroundImage = fallbackColors[category] || fallbackColors.default;
+        img.src = imageUrl;
     }
 }
 
@@ -143,7 +151,7 @@ async function fetchWeatherData(lat, lon) {
     const params = new URLSearchParams({
         latitude: lat,
         longitude: lon,
-        current: 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m,visibility,uv_index,surface_pressure,precipitation,wind_gusts_10m',
+        current: 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m,visibility,surface_pressure,precipitation,wind_gusts_10m',
         daily: 'weather_code,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,sunrise,sunset',
         timezone: 'auto',
         forecast_days: 7
