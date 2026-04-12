@@ -88,8 +88,7 @@ body.dark-theme .menu-item.active { background: rgba(255,255,255,0.15); }
     font-size: 1.8rem; font-weight: 350; opacity: 0.9;
     display: flex; align-items: center; gap: 0.7rem;
 }
-/* Фиксированный размер для иконок в описании погоды */
-.weather-desc img {
+.weather-icon {
     height: 2.2rem;
     width: auto;
     vertical-align: middle;
@@ -140,20 +139,42 @@ body.dark-theme .tab-btn.active { color: white; border-bottom-color: white; }
     font-size: 1.1rem; font-weight: 450; opacity: 0.7;
     margin-bottom: 1rem; text-transform: uppercase;
 }
-.temp-chart-container { margin-bottom: 1.5rem; overflow-x: auto; }
-.temp-chart { height: 120px; min-width: 600px; overflow: hidden; }
+
+/* Общий контейнер для графика и часов */
+.hourly-scroll-container {
+    overflow-x: auto;
+    overflow-y: visible;
+    padding-bottom: 1rem;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+}
+.temp-chart-container {
+    margin-bottom: 0;
+    min-width: max-content;
+}
+.temp-chart {
+    height: 150px;
+    min-width: 800px;
+    padding: 0.5rem 0;
+}
 .chart-svg { width: 100%; height: 100%; }
 .chart-line { fill: none; stroke: #4facfe; stroke-width: 2; }
 .chart-point { fill: #4facfe; }
 .chart-label {
-    font-size: 0.9rem; fill: currentColor; opacity: 0.8;
-    text-anchor: middle; font-weight: 500;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    fill: currentColor; opacity: 0.8;
+    text-anchor: middle;
 }
 
 .forecast-scroll, .hourly-scroll {
     display: flex; gap: 0.75rem; overflow-x: auto;
     padding: 0.5rem 0.25rem 1.5rem;
     scrollbar-width: thin; -webkit-overflow-scrolling: touch;
+}
+.hourly-scroll {
+    min-width: 800px;
+    padding: 0.5rem 0.25rem 1rem;
 }
 .forecast-card {
     background: rgba(255,255,255,0.6); border-radius: 16px;
@@ -216,23 +237,49 @@ body.dark-theme .details-section {
     background: rgba(128,128,128,0.15); border: 1px solid rgba(128,128,128,0.2);
     color: inherit; padding: 0.6rem 1.5rem; border-radius: 40px; cursor: pointer;
 }
+
 .refresh-btn {
-    position: fixed; bottom: 1.5rem; right: 1.5rem;
-    background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.1);
-    color: inherit; width: 44px; height: 44px; border-radius: 30px;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid rgba(0,0,0,0.1);
+    color: inherit;
+    width: 48px;
+    height: 48px;
+    border-radius: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     z-index: 100;
+    backdrop-filter: blur(10px);
+    transition: transform 0.2s, background 0.2s;
+}
+.refresh-btn:hover {
+    transform: rotate(15deg);
+    background: rgba(255,255,255,0.7);
+}
+.refresh-btn svg {
+    width: 24px;
+    height: 24px;
 }
 body.dark-theme .refresh-btn {
-    background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.15);
+    background: rgba(0,0,0,0.3);
+    border-color: rgba(255,255,255,0.15);
+}
+body.dark-theme .refresh-btn:hover {
+    background: rgba(0,0,0,0.5);
 }
 
 @media (max-width: 600px) {
-    .weather-background { height: 300px; }
+    .weather-background { 
+        height: 380px;
+    }
     
     .app-header { 
-        padding: 1rem 1rem 1.25rem; 
-        min-height: 300px;
+        padding: 1.5rem 1rem 1.5rem; 
+        min-height: 380px;
         display: flex;
         flex-direction: column;
     }
@@ -245,8 +292,8 @@ body.dark-theme .refresh-btn {
     }
     
     .content-area { padding: 1rem; }
-    .city-name { font-size: 1.8rem; }
-    .temp-current { font-size: 2.5rem; }
+    .city-name { font-size: 2rem; }
+    .temp-current { font-size: 3rem; }
     .feels-like { font-size: 1rem; }
     
     .weather-status-row { 
@@ -257,7 +304,7 @@ body.dark-theme .refresh-btn {
     }
     
     .weather-desc { 
-        font-size: 1.5rem; 
+        font-size: 1.6rem; 
         width: 100%;
         display: flex;
         align-items: center;
@@ -265,7 +312,7 @@ body.dark-theme .refresh-btn {
     }
     
     .weather-icon {
-        height: 2rem;
+        height: 2.2rem;
     }
     
     .update-badge { 

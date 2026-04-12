@@ -24,12 +24,20 @@
 
     function drawChart(temps){
         if(!chart||!temps.length)return;
-        const w=Math.max(600,temps.length*50); chart.setAttribute('viewBox',`0 0 ${w} 100`);
-        const pad=40, h=100, max=Math.max(...temps), min=Math.min(...temps), r=max-min||1;
-        const pts=temps.map((t,i)=>({x:pad+(i/(temps.length-1))*(w-2*pad), y:h-pad-((t-min)/r)*(h-2*pad)}));
-        let path=`M ${pts[0].x} ${pts[0].y}`; for(let i=1;i<pts.length;i++)path+=` L ${pts[i].x} ${pts[i].y}`;
+        const w=Math.max(800,temps.length*60); 
+        chart.setAttribute('viewBox',`0 0 ${w} 150`);
+        const pad=50, h=150, max=Math.max(...temps), min=Math.min(...temps), r=max-min||1;
+        const pts=temps.map((t,i)=>({
+            x:pad+(i/(temps.length-1))*(w-2*pad), 
+            y:h-pad-((t-min)/r)*(h-2*pad)
+        }));
+        let path=`M ${pts[0].x} ${pts[0].y}`; 
+        for(let i=1;i<pts.length;i++) path+=` L ${pts[i].x} ${pts[i].y}`;
         let circles='', labels='';
-        pts.forEach((p,i)=>{circles+=`<circle cx="${p.x}" cy="${p.y}" r="4" class="chart-point"/>`; labels+=`<text x="${p.x}" y="${p.y-8}" class="chart-label">${Math.round(temps[i])}°</text>`;});
+        pts.forEach((p,i)=>{
+            circles+=`<circle cx="${p.x}" cy="${p.y}" r="5" class="chart-point"/>`; 
+            labels+=`<text x="${p.x}" y="${p.y-10}" class="chart-label">${Math.round(temps[i])}°</text>`;
+        });
         chart.innerHTML=`<path d="${path}" class="chart-line"/>${circles}${labels}`;
     }
 
@@ -38,19 +46,33 @@
         const d=weatherData.daily, h=weatherData.hourly, target=d.time[dayIdx];
         const hours=[], temps=[];
         for(let i=0;i<h.time.length;i++) if(h.time[i].startsWith(target)){
-            hours.push({time:h.time[i], temp:h.temperature_2m[i], code:h.weather_code[i]});
+            hours.push({
+                time:h.time[i], 
+                temp:h.temperature_2m[i], 
+                code:h.weather_code[i]
+            });
             temps.push(h.temperature_2m[i]);
         }
         if(!hours.length)return;
         hTitle.textContent=new Date(target).toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
-        hScroll.innerHTML=hours.map(o=>`<div class="hourly-card"><div class="hourly-time">${new Date(o.time).getHours()}:00</div><div class="hourly-icon">${getWeatherEmojiHtml(o.code)}</div><div class="hourly-temp">${Math.round(o.temp)}°</div></div>`).join('');
+        hScroll.innerHTML=hours.map(o=>`
+            <div class="hourly-card">
+                <div class="hourly-time">${new Date(o.time).getHours()}:00</div>
+                <div class="hourly-icon">${getWeatherEmojiForTime(o.code, o.time)}</div>
+                <div class="hourly-temp">${Math.round(o.temp)}°</div>
+            </div>
+        `).join('');
         drawChart(temps);
-        fView.classList.add('hidden'); hView.classList.add('active');
+        fView.classList.add('hidden'); 
+        hView.classList.add('active');
     }
 
     function updateUI(data,loc){
-        weatherData=data; const cur=data.current, d=data.daily;
-        city.textContent=loc.main; region.textContent=loc.region; coords.textContent=`${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
+        weatherData=data; 
+        const cur=data.current, d=data.daily;
+        city.textContent=loc.main; 
+        region.textContent=loc.region; 
+        coords.textContent=`${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
         const code=cur.weather_code;
         temp.textContent=`${Math.round(cur.temperature_2m)}°`;
         feels.textContent=`Ощущается как ${Math.round(cur.apparent_temperature)}°`;
@@ -60,23 +82,43 @@
         fScroll.innerHTML=d.time.map((t,i)=>{
             const dt=new Date(t), name=i===0?'Сегодня':dt.toLocaleDateString('ru-RU',{weekday:'short'});
             const date=dt.toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
-            return `<div class="forecast-card" data-day="${i}"><div class="forecast-day">${name}</div><div class="forecast-date">${date}</div><div class="forecast-icon">${getWeatherEmojiHtml(d.weather_code[i])}</div><div class="forecast-temp-max">${Math.round(d.temperature_2m_max[i])}°</div><div class="forecast-temp-min">${Math.round(d.temperature_2m_min[i])}°</div></div>`;
+            return `
+                <div class="forecast-card" data-day="${i}">
+                    <div class="forecast-day">${name}</div>
+                    <div class="forecast-date">${date}</div>
+                    <div class="forecast-icon">${getWeatherEmojiForTime(d.weather_code[i], d.time[i])}</div>
+                    <div class="forecast-temp-max">${Math.round(d.temperature_2m_max[i])}°</div>
+                    <div class="forecast-temp-min">${Math.round(d.temperature_2m_min[i])}°</div>
+                </div>
+            `;
         }).join('');
-        document.querySelectorAll('.forecast-card').forEach(c=>c.addEventListener('click',()=>showHourly(+c.dataset.day)));
+        document.querySelectorAll('.forecast-card').forEach(c=>
+            c.addEventListener('click',()=>showHourly(+c.dataset.day))
+        );
     }
 
-    async function loadWeatherData(){
+    async function loadWeatherData(forceRefresh = false){
         showLoading();
         try{
-            const p=await requestLocation(); lat=p.lat; lon=p.lon;
-            const [loc, data] = await Promise.all([reverseGeocode(lat,lon), fetchWeatherData(lat,lon)]);
-            updateUI(data,loc); showContent();
+            const p=await requestLocation(); 
+            lat=p.lat; lon=p.lon;
+            const [loc, data] = await Promise.all([
+                reverseGeocode(lat,lon), 
+                fetchWeatherData(lat,lon,forceRefresh)
+            ]);
+            updateUI(data,loc); 
+            showContent();
         }catch(e){showError(e.message);}
     }
 
     window.loadWeatherData = loadWeatherData;
-    backBtn.addEventListener('click',()=>{ fView.classList.remove('hidden'); hView.classList.remove('active'); });
-    document.getElementById('refreshBtn').addEventListener('click',loadWeatherData);
-    document.getElementById('errorRetryBtn').addEventListener('click',loadWeatherData);
-    initTheme(); initMenu(); loadWeatherData();
+    backBtn.addEventListener('click',()=>{ 
+        fView.classList.remove('hidden'); 
+        hView.classList.remove('active'); 
+    });
+    document.getElementById('refreshBtn').addEventListener('click', ()=>loadWeatherData(true));
+    document.getElementById('errorRetryBtn').addEventListener('click', ()=>loadWeatherData(true));
+    initTheme(); 
+    initMenu(); 
+    loadWeatherData();
 })();
