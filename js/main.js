@@ -22,6 +22,15 @@
     function showContent(){loading.style.display='none'; fView.classList.remove('hidden'); hView.classList.remove('active'); errUI.style.display='none';}
     function showError(m){loading.style.display='none'; fView.classList.add('hidden'); hView.classList.remove('active'); errUI.style.display='flex'; document.getElementById('errorText').textContent=m;}
 
+    // Функция для получения дневной иконки (всегда солнце/облака, без луны)
+    function getDayEmojiHtml(code) {
+        if (emojiSet === 'fluent') {
+            const f = FLUENT_SVG_MAP[code] || 'Cloud.svg';
+            return `<img src="emoji/${f}" class="weather-icon" onerror="this.style.display='none'">`;
+        }
+        return SYSTEM_EMOJIS[code] || '🌡️';
+    }
+
     function drawChart(temps){
         if(!chart||!temps.length)return;
         const w=Math.max(800,temps.length*60); 
@@ -79,6 +88,8 @@
         desc.innerHTML=`${getWeatherEmojiHtml(code)} ${getWeatherDescription(code)}`;
         upd.textContent=`Обновлено: ${getCurrentTimeString()}`;
         updateBackground(code);
+        
+        // 7-дневный прогноз - всегда дневные иконки
         fScroll.innerHTML=d.time.map((t,i)=>{
             const dt=new Date(t), name=i===0?'Сегодня':dt.toLocaleDateString('ru-RU',{weekday:'short'});
             const date=dt.toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
@@ -86,7 +97,7 @@
                 <div class="forecast-card" data-day="${i}">
                     <div class="forecast-day">${name}</div>
                     <div class="forecast-date">${date}</div>
-                    <div class="forecast-icon">${getWeatherEmojiForTime(d.weather_code[i], d.time[i])}</div>
+                    <div class="forecast-icon">${getDayEmojiHtml(d.weather_code[i])}</div>
                     <div class="forecast-temp-max">${Math.round(d.temperature_2m_max[i])}°</div>
                     <div class="forecast-temp-min">${Math.round(d.temperature_2m_min[i])}°</div>
                 </div>
