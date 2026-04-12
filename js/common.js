@@ -32,12 +32,12 @@ function getWeatherDescription(c){ const m={0:'Ясно',1:'Преимущест
 function isNight(){ if(!sunsetTime)return false; const n=new Date(),s=new Date(sunsetTime); s.setMinutes(s.getMinutes()+30); return n>s; }
 function getWeatherEmojiHtml(code){
     if(code===0 && isNight()){
-        if(emojiSet==='fluent') return '<img src="emoji/Crescent moon.svg" style="width:100%;height:100%;" onerror="this.style.display=\'none\'">';
+        if(emojiSet==='fluent') return '<img src="emoji/Crescent moon.svg" class="weather-icon" onerror="this.style.display=\'none\'">';
         else return '🌙';
     }
     if(emojiSet==='fluent'){
         const f=FLUENT_SVG_MAP[code]||'Cloud.svg';
-        return `<img src="emoji/${f}" style="width:100%;height:100%;" onerror="this.style.display=\'none\'">`;
+        return `<img src="emoji/${f}" class="weather-icon" onerror="this.style.display=\'none\'">`;
     }
     return SYSTEM_EMOJIS[code]||'🌡️';
 }
