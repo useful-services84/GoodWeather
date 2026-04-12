@@ -32,23 +32,34 @@
     }
 
     function drawChart(temps){
-        if(!chart||!temps.length)return;
-        const w=Math.max(800,temps.length*60); 
-        chart.setAttribute('viewBox',`0 0 ${w} 150`);
-        const pad=50, h=150, max=Math.max(...temps), min=Math.min(...temps), r=max-min||1;
-        const pts=temps.map((t,i)=>({
-            x:pad+(i/(temps.length-1))*(w-2*pad), 
-            y:h-pad-((t-min)/r)*(h-2*pad)
-        }));
-        let path=`M ${pts[0].x} ${pts[0].y}`; 
-        for(let i=1;i<pts.length;i++) path+=` L ${pts[i].x} ${pts[i].y}`;
-        let circles='', labels='';
-        pts.forEach((p,i)=>{
-            circles+=`<circle cx="${p.x}" cy="${p.y}" r="5" class="chart-point"/>`; 
-            labels+=`<text x="${p.x}" y="${p.y-10}" class="chart-label">${Math.round(temps[i])}°</text>`;
-        });
-        chart.innerHTML=`<path d="${path}" class="chart-line"/>${circles}${labels}`;
+    if(!chart||!temps.length)return;
+    const w = Math.max(700, temps.length * 55);  // 700 минимум, 55 на точку
+    chart.setAttribute('viewBox', `0 0 ${w} 150`);
+    
+    const pad = 45;
+    const h = 150;
+    const max = Math.max(...temps);
+    const min = Math.min(...temps);
+    const r = max - min || 1;
+    
+    const pts = temps.map((t, i) => ({
+        x: pad + (i / (temps.length - 1)) * (w - 2 * pad),
+        y: h - pad - ((t - min) / r) * (h - 2 * pad)
+    }));
+    
+    let path = `M ${pts[0].x} ${pts[0].y}`;
+    for(let i = 1; i < pts.length; i++) {
+        path += ` L ${pts[i].x} ${pts[i].y}`;
     }
+    
+    let circles = '', labels = '';
+    pts.forEach((p, i) => {
+        circles += `<circle cx="${p.x}" cy="${p.y}" r="5" class="chart-point"/>`;
+        labels += `<text x="${p.x}" y="${p.y - 10}" class="chart-label">${Math.round(temps[i])}°</text>`;
+    });
+    
+    chart.innerHTML = `<path d="${path}" class="chart-line"/>${circles}${labels}`;
+ } 
 
     function showHourly(dayIdx){
         if(!weatherData?.hourly)return;
