@@ -228,39 +228,53 @@ body.dark-theme .refresh-btn {
 }
 
 @media (max-width: 600px) {
-    /* Увеличиваем высоту фона для мобильных */
-    .weather-background { height: 280px; }
+    .weather-background { height: 300px; }
     
-    .app-header { padding: 1rem 1rem 0.75rem; }
+    .app-header { 
+        padding: 1rem 1rem 1.25rem; 
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .header-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+    
     .content-area { padding: 1rem; }
     .city-name { font-size: 1.8rem; }
     .temp-current { font-size: 2.5rem; }
+    .feels-like { font-size: 1rem; }
     
-    /* Адаптируем статусную строку */
     .weather-status-row { 
         flex-direction: column; 
         align-items: flex-start; 
-        gap: 0.5rem;
+        gap: 0.75rem;
+        margin-top: 0.5rem;
     }
+    
     .weather-desc { 
         font-size: 1.5rem; 
         width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
-    /* Фиксируем иконку и на мобильных */
-    .weather-desc img {
-        height: 1.8rem;
-        width: auto;
+    
+    .weather-icon {
+        height: 2rem;
     }
+    
     .update-badge { 
         align-self: flex-start; 
         margin-left: 0;
-        margin-top: 0.25rem;
+        font-size: 0.8rem;
         width: 100%;
-    }
-    
-    /* Добавляем отступ снизу для текста с ощущаемой температурой */
-    .feels-like {
-        margin-bottom: 0.25rem;
+        padding-top: 0.25rem;
+        border-top: 1px solid rgba(255,255,255,0.1);
     }
     
     .details-grid { grid-template-columns: repeat(2,1fr); }
