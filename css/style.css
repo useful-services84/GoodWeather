@@ -88,6 +88,12 @@ body.dark-theme .menu-item.active { background: rgba(255,255,255,0.15); }
     font-size: 1.8rem; font-weight: 350; opacity: 0.9;
     display: flex; align-items: center; gap: 0.7rem;
 }
+/* Фиксированный размер для иконок в описании погоды */
+.weather-desc img {
+    height: 2.2rem;
+    width: auto;
+    vertical-align: middle;
+}
 .weather-emoji-icon {
     width: 1.2rem; height: 1.2rem; display: inline-block; flex-shrink: 0;
 }
@@ -222,15 +228,41 @@ body.dark-theme .refresh-btn {
 }
 
 @media (max-width: 600px) {
-    .app-header { padding: 0.5rem 1rem; }
+    /* Увеличиваем высоту фона для мобильных */
+    .weather-background { height: 280px; }
+    
+    .app-header { padding: 1rem 1rem 0.75rem; }
     .content-area { padding: 1rem; }
     .city-name { font-size: 1.8rem; }
     .temp-current { font-size: 2.5rem; }
-    .weather-status-row { flex-direction: column; align-items: flex-start; }
-    .weather-desc { font-size: 1.5rem; }
-    .update-badge { align-self: flex-start; margin-top: 0.25rem; }
+    
+    /* Адаптируем статусную строку */
+    .weather-status-row { 
+        flex-direction: column; 
+        align-items: flex-start; 
+        gap: 0.5rem;
+    }
+    .weather-desc { 
+        font-size: 1.5rem; 
+        width: 100%;
+    }
+    /* Фиксируем иконку и на мобильных */
+    .weather-desc img {
+        height: 1.8rem;
+        width: auto;
+    }
+    .update-badge { 
+        align-self: flex-start; 
+        margin-left: 0;
+        margin-top: 0.25rem;
+        width: 100%;
+    }
+    
+    /* Добавляем отступ снизу для текста с ощущаемой температурой */
+    .feels-like {
+        margin-bottom: 0.25rem;
+    }
+    
     .details-grid { grid-template-columns: repeat(2,1fr); }
     .forecast-card { min-width: 85px; padding: 0.75rem; }
-    .weather-background { height: 210px; }
-    .app-header { padding-top: 0.25rem; }
 }
