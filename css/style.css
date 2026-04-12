@@ -83,17 +83,17 @@ body.dark-theme .menu-item.active { background: rgba(255,255,255,0.15); }
 }
 .temp-section { display: flex; flex-direction: column; }
 .temp-current { font-size: 3rem; font-weight: 300; line-height: 1; }
-.feels-like { font-size: 1rem; opacity: 0.7; margin-top: 0.25rem; }
+.feels-like { font-size: 1.1rem; opacity: 0.8; margin-top: 0.25rem; }
 .weather-desc {
-    font-size: 1.5rem; font-weight: 350; opacity: 0.9;
-    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 1.8rem; font-weight: 350; opacity: 0.9;
+    display: flex; align-items: center; gap: 0.7rem;
 }
 .weather-emoji-icon {
-    width: 2.2rem; height: 2.2rem; display: inline-block; flex-shrink: 0;
+    width: 2.8rem; height: 2.8rem; display: inline-block; flex-shrink: 0;
 }
 .weather-emoji-icon img { width: 100%; height: 100%; object-fit: contain; }
 .update-badge {
-    margin-left: auto; font-size: 0.8rem; opacity: 0.5; align-self: flex-end;
+    margin-left: auto; font-size: 0.85rem; opacity: 0.6; align-self: flex-end;
 }
 
 .tabs-container {
@@ -184,7 +184,7 @@ body.dark-theme .details-section {
     font-size: 0.7rem; text-transform: uppercase; opacity: 0.5;
     margin-bottom: 0.5rem;
 }
-.detail-value { font-size: 2rem; font-weight: 300; }
+.detail-value { font-size: 2.2rem; font-weight: 400; }
 .detail-unit { font-size: 0.9rem; opacity: 0.5; margin-left: 0.2rem; }
 
 .status-message {
@@ -217,7 +217,7 @@ body.dark-theme .refresh-btn {
     .content-area { padding: 1rem; }
     .city-name { font-size: 1.8rem; }
     .temp-current { font-size: 2.5rem; }
-    .weather-desc { font-size: 1.2rem; }
+    .weather-desc { font-size: 1.4rem; }
     .details-grid { grid-template-columns: repeat(2,1fr); }
     .forecast-card { min-width: 85px; padding: 0.75rem; }
 }
