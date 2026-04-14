@@ -58,11 +58,13 @@
         
         chart.innerHTML = `<path d="${path}" class="chart-line"/>${circles}${labels}`;
         
-        // Подгоняем ширину контейнера и скролла
-        const container = document.querySelector('.hourly-scroll-container');
-        const chartDiv = container.querySelector('.temp-chart');
+        // Синхронизация ширины графика и блока с часами
+        const wrapper = document.querySelector('.hourly-scroll-wrapper');
+        const chartDiv = wrapper.querySelector('.temp-chart');
+        const scrollDiv = wrapper.querySelector('.hourly-scroll');
+        
         chartDiv.style.minWidth = totalWidth + 'px';
-        hScroll.style.minWidth = totalWidth + 'px';
+        scrollDiv.style.minWidth = totalWidth + 'px';
     }
 
     function showHourly(dayIdx){
