@@ -4,8 +4,9 @@
           hView=document.getElementById('hourlyView'),
           errUI=document.getElementById('errorUI'),
           fScroll=document.getElementById('forecastScroll'),
+          hScroll=document.getElementById('hourlyScroll'),
           hTitle=document.getElementById('hourlyTitle'),
-          container=document.getElementById('hourlyScrollContainer'),
+          chart=document.getElementById('chartSvg'),
           backBtn=document.getElementById('backBtn'),
           city=document.getElementById('cityDisplay'),
           region=document.getElementById('regionDisplay'),
@@ -29,84 +30,48 @@
         return SYSTEM_EMOJIS[code] || '🌡️';
     }
 
-    function buildHourlyChart(hours, temps) {
-        const itemWidth = 70;  // ширина одного часа в пикселях
-        const totalWidth = hours.length * itemWidth;
+    function drawChart(temps, hoursCount){
+        if(!chart||!temps.length)return;
+        const pointWidth = 70;
+        const totalWidth = Math.max(hoursCount * pointWidth, 600);
+        chart.setAttribute('viewBox', `0 0 ${totalWidth} 150`);
         
-        const chartHeight = 130;
-        const padLeft = 35;
-        const padRight = 35;
-        const padTop = 20;
-        const padBottom = 15;
+        const pad = 45;
+        const h = 150;
+        const max = Math.max(...temps);
+        const min = Math.min(...temps);
+        const r = max - min || 1;
         
-        const maxTemp = Math.max(...temps);
-        const minTemp = Math.min(...temps);
-        const tempRange = maxTemp - minTemp || 1;
+        const pts = temps.map((t, i) => ({
+            x: pad + (i / (temps.length - 1)) * (totalWidth - 2 * pad),
+            y: h - pad - ((t - min) / r) * (h - 2 * pad)
+        }));
         
-        const chartAreaHeight = chartHeight - padTop - padBottom;
-        const chartAreaWidth = totalWidth - padLeft - padRight;
+        let path = `M ${pts[0].x} ${pts[0].y}`;
+        for(let i = 1; i < pts.length; i++) path += ` L ${pts[i].x} ${pts[i].y}`;
         
-        // Строим точки
-        const points = temps.map((t, i) => {
-            const x = padLeft + (i / (hours.length - 1)) * chartAreaWidth;
-            const y = padTop + chartAreaHeight - ((t - minTemp) / tempRange) * chartAreaHeight;
-            return { x, y, temp: t };
+        let circles = '', labels = '';
+        pts.forEach((p, i) => {
+            circles += `<circle cx="${p.x}" cy="${p.y}" r="5" class="chart-point"/>`;
+            labels += `<text x="${p.x}" y="${p.y - 10}" class="chart-label">${Math.round(temps[i])}°</text>`;
         });
         
-        // Линия графика
-        let pathD = `M ${points[0].x} ${points[0].y}`;
-        for (let i = 1; i < points.length; i++) {
-            pathD += ` L ${points[i].x} ${points[i].y}`;
-        }
+        chart.innerHTML = `<path d="${path}" class="chart-line"/>${circles}${labels}`;
         
-        // Кружки и подписи температур
-        let circles = '';
-        let tempLabels = '';
-        points.forEach(p => {
-            circles += `<circle cx="${p.x}" cy="${p.y}" r="4.5" class="chart-point"/>`;
-            tempLabels += `<text x="${p.x}" y="${p.y - 8}" class="chart-label">${Math.round(p.temp)}°</text>`;
-        });
-        
-        // SVG
-        const svg = `
-            <svg class="chart-svg" viewBox="0 0 ${totalWidth} ${chartHeight}" width="${totalWidth}" height="${chartHeight}">
-                <path d="${pathD}" class="chart-line"/>
-                ${circles}
-                ${tempLabels}
-            </svg>
-        `;
-        
-        // Подписи часов снизу
-        const labels = hours.map((h, i) => {
-            const timeStr = new Date(h.time).getHours() + ':00';
-            return `
-                <div class="hourly-label-item" style="width: ${itemWidth}px;">
-                    <div class="hourly-label-time">${timeStr}</div>
-                    <div class="hourly-label-icon">${getWeatherEmojiForTime(h.code, h.time)}</div>
-                    <div class="hourly-label-temp">${Math.round(h.temp)}°</div>
-                </div>
-            `;
-        }).join('');
-        
-        container.innerHTML = `
-            <div class="temp-chart-wrapper" style="width: ${totalWidth}px;">
-                <div class="temp-chart">${svg}</div>
-                <div class="hourly-labels" style="width: ${totalWidth}px;">${labels}</div>
-            </div>
-        `;
+        // Подгоняем ширину контейнера и скролла
+        const container = document.querySelector('.hourly-scroll-container');
+        const chartDiv = container.querySelector('.temp-chart');
+        chartDiv.style.minWidth = totalWidth + 'px';
+        hScroll.style.minWidth = totalWidth + 'px';
     }
 
     function showHourly(dayIdx){
-        if(!weatherData?.hourly) return;
-        const d = weatherData.daily;
-        const h = weatherData.hourly;
-        const target = d.time[dayIdx];
+        if(!weatherData?.hourly)return;
+        const d = weatherData.daily, h = weatherData.hourly, target = d.time[dayIdx];
+        const hours = [], temps = [];
         
-        const hours = [];
-        const temps = [];
-        
-        for (let i = 0; i < h.time.length; i++) {
-            if (h.time[i].startsWith(target)) {
+        for(let i = 0; i < h.time.length; i++) {
+            if(h.time[i].startsWith(target)){
                 hours.push({
                     time: h.time[i],
                     temp: h.temperature_2m[i],
@@ -115,14 +80,24 @@
                 temps.push(h.temperature_2m[i]);
             }
         }
-        
-        if (!hours.length) return;
+        if(!hours.length)return;
         
         hTitle.textContent = new Date(target).toLocaleDateString('ru-RU', {
             weekday: 'long', day: 'numeric', month: 'long'
         });
         
-        buildHourlyChart(hours, temps);
+        hScroll.innerHTML = hours.map(o => {
+            const hour = new Date(o.time).getHours();
+            return `
+                <div class="hourly-card" style="width: 70px;">
+                    <div class="hourly-time">${hour}:00</div>
+                    <div class="hourly-icon">${getWeatherEmojiForTime(o.code, o.time)}</div>
+                    <div class="hourly-temp">${Math.round(o.temp)}°</div>
+                </div>
+            `;
+        }).join('');
+        
+        drawChart(temps, hours.length);
         
         fView.classList.add('hidden');
         hView.classList.add('active');
@@ -130,8 +105,7 @@
 
     function updateUI(data, loc){
         weatherData = data;
-        const cur = data.current;
-        const d = data.daily;
+        const cur = data.current, d = data.daily;
         
         city.textContent = loc.main;
         region.textContent = loc.region;
@@ -146,8 +120,8 @@
         
         fScroll.innerHTML = d.time.map((t, i) => {
             const dt = new Date(t);
-            const name = i === 0 ? 'Сегодня' : dt.toLocaleDateString('ru-RU', { weekday: 'short' });
-            const date = dt.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+            const name = i === 0 ? 'Сегодня' : dt.toLocaleDateString('ru-RU', {weekday: 'short'});
+            const date = dt.toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'});
             return `
                 <div class="forecast-card" data-day="${i}">
                     <div class="forecast-day">${name}</div>
@@ -166,17 +140,16 @@
 
     async function loadWeatherData(forceRefresh = false){
         showLoading();
-        try {
+        try{
             const p = await requestLocation();
-            lat = p.lat;
-            lon = p.lon;
+            lat = p.lat; lon = p.lon;
             const [loc, data] = await Promise.all([
                 reverseGeocode(lat, lon),
                 fetchWeatherData(lat, lon, forceRefresh)
             ]);
             updateUI(data, loc);
             showContent();
-        } catch (e) {
+        }catch(e){
             showError(e.message);
         }
     }

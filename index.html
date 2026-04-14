@@ -51,7 +51,10 @@
                 <button class="back-btn" id="backBtn">← Назад</button>
                 <h2 class="section-title" id="hourlyTitle"></h2>
                 <div class="hourly-scroll-container" id="hourlyScrollContainer">
-                    <div class="temp-chart-wrapper" id="tempChartWrapper"></div>
+                    <div class="temp-chart">
+                        <svg class="chart-svg" id="chartSvg"></svg>
+                    </div>
+                    <div class="hourly-scroll" id="hourlyScroll"></div>
                 </div>
             </div>
             <div id="errorUI" class="status-message error" style="display:none"><p>Ошибка</p><p id="errorText"></p><button class="retry-btn" id="errorRetryBtn">Попробовать снова</button></div>
