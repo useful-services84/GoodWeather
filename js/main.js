@@ -1,85 +1,109 @@
 (function(){
-    const loading=document.getElementById('loadingUI'),
-          fView=document.getElementById('forecastView'),
-          hView=document.getElementById('hourlyView'),
-          errUI=document.getElementById('errorUI'),
-          fScroll=document.getElementById('forecastScroll'),
-          hScroll=document.getElementById('hourlyScroll'),
-          hTitle=document.getElementById('hourlyTitle'),
-          chart=document.getElementById('chartSvg'),
-          backBtn=document.getElementById('backBtn'),
-          city=document.getElementById('cityDisplay'),
-          region=document.getElementById('regionDisplay'),
-          coords=document.getElementById('coordsDisplay'),
-          temp=document.getElementById('tempDisplay'),
-          feels=document.getElementById('feelsLikeHeader'),
-          desc=document.getElementById('descDisplay'),
-          upd=document.getElementById('updateTimeDisplay');
+    "use strict";
+    
+    const loading = document.getElementById('loadingUI');
+    const fView = document.getElementById('forecastView');
+    const hView = document.getElementById('hourlyView');
+    const errUI = document.getElementById('errorUI');
+    const fScroll = document.getElementById('forecastScroll');
+    const hScroll = document.getElementById('hourlyScroll');
+    const hTitle = document.getElementById('hourlyTitle');
+    const chart = document.getElementById('chartSvg');
+    const backBtn = document.getElementById('backBtn');
+    const city = document.getElementById('cityDisplay');
+    const region = document.getElementById('regionDisplay');
+    const coords = document.getElementById('coordsDisplay');
+    const temp = document.getElementById('tempDisplay');
+    const feels = document.getElementById('feelsLikeHeader');
+    const desc = document.getElementById('descDisplay');
+    const upd = document.getElementById('updateTimeDisplay');
 
-    let lat,lon,weatherData;
+    let lat, lon, weatherData;
 
-    function showLoading(){loading.style.display='flex'; fView.classList.add('hidden'); hView.classList.remove('active'); errUI.style.display='none';}
-    function showContent(){loading.style.display='none'; fView.classList.remove('hidden'); hView.classList.remove('active'); errUI.style.display='none';}
-    function showError(m){loading.style.display='none'; fView.classList.add('hidden'); hView.classList.remove('active'); errUI.style.display='flex'; document.getElementById('errorText').textContent=m;}
-
-    function getDayEmojiHtml(code) {
-        if (emojiSet === 'fluent') {
-            const f = FLUENT_SVG_MAP[code] || 'Cloud.svg';
-            return `<img src="emoji/${f}" class="weather-icon" onerror="this.style.display='none'">`;
-        }
-        return SYSTEM_EMOJIS[code] || '🌡️';
+    function showLoading() {
+        loading.style.display = 'flex';
+        fView.classList.add('hidden');
+        hView.classList.remove('active');
+        errUI.style.display = 'none';
+    }
+    
+    function showContent() {
+        loading.style.display = 'none';
+        fView.classList.remove('hidden');
+        hView.classList.remove('active');
+        errUI.style.display = 'none';
+    }
+    
+    function showError(m) {
+        loading.style.display = 'none';
+        fView.classList.add('hidden');
+        hView.classList.remove('active');
+        errUI.style.display = 'flex';
+        document.getElementById('errorText').textContent = m;
     }
 
-    function drawChart(temps, hoursCount){
-        if(!chart||!temps.length)return;
+    function getDayEmojiHtml(code) {
+        if (typeof emojiSet !== 'undefined' && emojiSet === 'fluent') {
+            const f = (typeof FLUENT_SVG_MAP !== 'undefined' && FLUENT_SVG_MAP[code]) || 'Cloud.svg';
+            return '<img src="emoji/' + f + '" class="weather-icon" onerror="this.style.display=\'none\'">';
+        }
+        return (typeof SYSTEM_EMOJIS !== 'undefined' && SYSTEM_EMOJIS[code]) || '🌡️';
+    }
+
+    function drawChart(temps, hoursCount) {
+        if (!chart || !temps.length) return;
         
-        // Фиксированная ширина на каждую точку
-        const pointWidth = 70;
-        const totalWidth = hoursCount * pointWidth;
+        var pointWidth = 70;
+        var totalWidth = hoursCount * pointWidth;
         
-        chart.setAttribute('viewBox', `0 0 ${totalWidth} 150`);
+        chart.setAttribute('viewBox', '0 0 ' + totalWidth + ' 150');
         
-        const pad = 45;
-        const h = 150;
-        const max = Math.max(...temps);
-        const min = Math.min(...temps);
-        const r = max - min || 1;
+        var pad = 45;
+        var h = 150;
+        var max = Math.max.apply(null, temps);
+        var min = Math.min.apply(null, temps);
+        var r = max - min || 1;
         
-        const pts = temps.map((t, i) => ({
-            x: pad + (i / (temps.length - 1)) * (totalWidth - 2 * pad),
-            y: h - pad - ((t - min) / r) * (h - 2 * pad)
-        }));
-        
-        let path = `M ${pts[0].x} ${pts[0].y}`;
-        for(let i = 1; i < pts.length; i++) path += ` L ${pts[i].x} ${pts[i].y}`;
-        
-        let circles = '', labels = '';
-        pts.forEach((p, i) => {
-            circles += `<circle cx="${p.x}" cy="${p.y}" r="5" class="chart-point"/>`;
-            labels += `<text x="${p.x}" y="${p.y - 10}" class="chart-label">${Math.round(temps[i])}°</text>`;
+        var pts = temps.map(function(t, i) {
+            return {
+                x: pad + (i / (temps.length - 1)) * (totalWidth - 2 * pad),
+                y: h - pad - ((t - min) / r) * (h - 2 * pad)
+            };
         });
         
-        chart.innerHTML = `<path d="${path}" class="chart-line"/>${circles}${labels}`;
+        var path = 'M ' + pts[0].x + ' ' + pts[0].y;
+        for (var i = 1; i < pts.length; i++) {
+            path += ' L ' + pts[i].x + ' ' + pts[i].y;
+        }
         
-        // Синхронизация ширины графика и блока с часами
-        const wrapper = document.querySelector('.hourly-scroll-wrapper');
-        const chartDiv = wrapper.querySelector('.temp-chart');
-        const scrollDiv = wrapper.querySelector('.hourly-scroll');
+        var circles = '', labels = '';
+        pts.forEach(function(p, i) {
+            circles += '<circle cx="' + p.x + '" cy="' + p.y + '" r="5" class="chart-point"/>';
+            labels += '<text x="' + p.x + '" y="' + (p.y - 10) + '" class="chart-label">' + Math.round(temps[i]) + '°</text>';
+        });
         
-        // Устанавливаем точную ширину
+        chart.innerHTML = '<path d="' + path + '" class="chart-line"/>' + circles + labels;
+        
+        var wrapper = document.querySelector('.hourly-scroll-wrapper');
+        var chartDiv = wrapper.querySelector('.temp-chart');
+        var scrollDiv = wrapper.querySelector('.hourly-scroll');
+        
         chartDiv.style.width = totalWidth + 'px';
         chartDiv.style.minWidth = totalWidth + 'px';
         scrollDiv.style.width = totalWidth + 'px';
         scrollDiv.style.minWidth = totalWidth + 'px';
     }
 
-    function showHourly(dayIdx){
-        if(!weatherData?.hourly)return;
-        const d = weatherData.daily, h = weatherData.hourly, target = d.time[dayIdx];
-        const hours = [], temps = [];
+    function showHourly(dayIdx) {
+        if (!weatherData || !weatherData.hourly) return;
         
-        for(let i = 0; i < h.time.length; i++) {
-            if(h.time[i].startsWith(target)){
+        var d = weatherData.daily;
+        var h = weatherData.hourly;
+        var target = d.time[dayIdx];
+        var hours = [], temps = [];
+        
+        for (var i = 0; i < h.time.length; i++) {
+            if (h.time[i].startsWith(target)) {
                 hours.push({
                     time: h.time[i],
                     temp: h.temperature_2m[i],
@@ -88,22 +112,20 @@
                 temps.push(h.temperature_2m[i]);
             }
         }
-        if(!hours.length)return;
+        
+        if (!hours.length) return;
         
         hTitle.textContent = new Date(target).toLocaleDateString('ru-RU', {
             weekday: 'long', day: 'numeric', month: 'long'
         });
         
-        // Каждая карточка имеет точную ширину 70px
-        hScroll.innerHTML = hours.map(o => {
-            const hour = new Date(o.time).getHours();
-            return `
-                <div class="hourly-card" style="width: 70px;">
-                    <div class="hourly-time">${hour}:00</div>
-                    <div class="hourly-icon">${getWeatherEmojiForTime(o.code, o.time)}</div>
-                    <div class="hourly-temp">${Math.round(o.temp)}°</div>
-                </div>
-            `;
+        hScroll.innerHTML = hours.map(function(o) {
+            var hour = new Date(o.time).getHours();
+            return '<div class="hourly-card" style="width: 70px;">' +
+                '<div class="hourly-time">' + hour + ':00</div>' +
+                '<div class="hourly-icon">' + (typeof getWeatherEmojiForTime === 'function' ? getWeatherEmojiForTime(o.code, o.time) : '') + '</div>' +
+                '<div class="hourly-temp">' + Math.round(o.temp) + '°</div>' +
+            '</div>';
         }).join('');
         
         drawChart(temps, hours.length);
@@ -112,68 +134,107 @@
         hView.classList.add('active');
     }
 
-    function updateUI(data, loc){
+    function updateUI(data, loc) {
         weatherData = data;
-        const cur = data.current, d = data.daily;
+        var cur = data.current;
+        var d = data.daily;
         
         city.textContent = loc.main;
         region.textContent = loc.region;
-        coords.textContent = `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
+        coords.textContent = lat.toFixed(4) + '°, ' + lon.toFixed(4) + '°';
         
-        const code = cur.weather_code;
-        temp.textContent = `${Math.round(cur.temperature_2m)}°`;
-        feels.textContent = `Ощущается как ${Math.round(cur.apparent_temperature)}°`;
-        desc.innerHTML = `${getWeatherEmojiHtml(code)} ${getWeatherDescription(code)}`;
-        upd.textContent = `Обновлено: ${getCurrentTimeString()}`;
-        updateBackground(code);
+        var code = cur.weather_code;
+        temp.textContent = Math.round(cur.temperature_2m) + '°';
+        feels.textContent = 'Ощущается как ' + Math.round(cur.apparent_temperature) + '°';
         
-        fScroll.innerHTML = d.time.map((t, i) => {
-            const dt = new Date(t);
-            const name = i === 0 ? 'Сегодня' : dt.toLocaleDateString('ru-RU', {weekday: 'short'});
-            const date = dt.toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'});
-            return `
-                <div class="forecast-card" data-day="${i}">
-                    <div class="forecast-day">${name}</div>
-                    <div class="forecast-date">${date}</div>
-                    <div class="forecast-icon">${getDayEmojiHtml(d.weather_code[i])}</div>
-                    <div class="forecast-temp-max">${Math.round(d.temperature_2m_max[i])}°</div>
-                    <div class="forecast-temp-min">${Math.round(d.temperature_2m_min[i])}°</div>
-                </div>
-            `;
+        if (typeof getWeatherEmojiHtml === 'function' && typeof getWeatherDescription === 'function') {
+            desc.innerHTML = getWeatherEmojiHtml(code) + ' ' + getWeatherDescription(code);
+        }
+        
+        if (typeof getCurrentTimeString === 'function') {
+            upd.textContent = 'Обновлено: ' + getCurrentTimeString();
+        }
+        
+        if (typeof updateBackground === 'function') {
+            updateBackground(code);
+        }
+        
+        fScroll.innerHTML = d.time.map(function(t, i) {
+            var dt = new Date(t);
+            var name = i === 0 ? 'Сегодня' : dt.toLocaleDateString('ru-RU', {weekday: 'short'});
+            var date = dt.toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'});
+            return '<div class="forecast-card" data-day="' + i + '">' +
+                '<div class="forecast-day">' + name + '</div>' +
+                '<div class="forecast-date">' + date + '</div>' +
+                '<div class="forecast-icon">' + getDayEmojiHtml(d.weather_code[i]) + '</div>' +
+                '<div class="forecast-temp-max">' + Math.round(d.temperature_2m_max[i]) + '°</div>' +
+                '<div class="forecast-temp-min">' + Math.round(d.temperature_2m_min[i]) + '°</div>' +
+            '</div>';
         }).join('');
         
-        document.querySelectorAll('.forecast-card').forEach(c =>
-            c.addEventListener('click', (e) => {
-                e.stopPropagation();
-                showHourly(+c.dataset.day);
-            })
-        );
+        var cards = document.querySelectorAll('.forecast-card');
+        for (var i = 0; i < cards.length; i++) {
+            cards[i].addEventListener('click', (function(idx) {
+                return function(e) {
+                    e.stopPropagation();
+                    showHourly(idx);
+                };
+            })(i));
+        }
     }
 
-    async function loadWeatherData(forceRefresh = false){
+    async function loadWeatherData(forceRefresh) {
         showLoading();
-        try{
-            const p = await requestLocation();
-            lat = p.lat; lon = p.lon;
-            const [loc, data] = await Promise.all([
+        try {
+            if (typeof requestLocation !== 'function') throw new Error('requestLocation not found');
+            
+            var p = await requestLocation();
+            lat = p.lat;
+            lon = p.lon;
+            
+            if (typeof reverseGeocode !== 'function') throw new Error('reverseGeocode not found');
+            if (typeof fetchWeatherData !== 'function') throw new Error('fetchWeatherData not found');
+            
+            var results = await Promise.all([
                 reverseGeocode(lat, lon),
                 fetchWeatherData(lat, lon, forceRefresh)
             ]);
+            
+            var loc = results[0];
+            var data = results[1];
+            
             updateUI(data, loc);
             showContent();
-        }catch(e){
+        } catch (e) {
             showError(e.message);
         }
     }
 
     window.loadWeatherData = loadWeatherData;
-    backBtn.addEventListener('click', () => {
-        fView.classList.remove('hidden');
-        hView.classList.remove('active');
-    });
-    document.getElementById('refreshBtn').addEventListener('click', () => loadWeatherData(true));
-    document.getElementById('errorRetryBtn').addEventListener('click', () => loadWeatherData(true));
-    initTheme();
-    initMenu();
+    
+    if (backBtn) {
+        backBtn.addEventListener('click', function() {
+            fView.classList.remove('hidden');
+            hView.classList.remove('active');
+        });
+    }
+    
+    var refreshBtn = document.getElementById('refreshBtn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function() {
+            loadWeatherData(true);
+        });
+    }
+    
+    var errorRetryBtn = document.getElementById('errorRetryBtn');
+    if (errorRetryBtn) {
+        errorRetryBtn.addEventListener('click', function() {
+            loadWeatherData(true);
+        });
+    }
+    
+    if (typeof initTheme === 'function') initTheme();
+    if (typeof initMenu === 'function') initMenu();
+    
     loadWeatherData();
 })();
