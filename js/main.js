@@ -136,7 +136,10 @@
         }).join('');
         
         document.querySelectorAll('.forecast-card').forEach(c =>
-            c.addEventListener('click', () => showHourly(+c.dataset.day))
+            c.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showHourly(+c.dataset.day);
+            })
         );
     }
 
