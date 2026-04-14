@@ -7,7 +7,7 @@ body {
 }
 body.dark-theme { background-color: #0b1a2a; color: white; }
 
-/* Фон ровно до вкладок */
+/* Фон */
 .weather-background {
     position: absolute; top: 0; left: 0; width: 100%; height: 240px;
     background-size: cover; background-position: center; background-repeat: no-repeat;
@@ -93,10 +93,6 @@ body.dark-theme .menu-item.active { background: rgba(255,255,255,0.15); }
     width: auto;
     vertical-align: middle;
 }
-.weather-emoji-icon {
-    width: 1.2rem; height: 1.2rem; display: inline-block; flex-shrink: 0;
-}
-.weather-emoji-icon img { width: 100%; height: 100%; object-fit: contain; vertical-align: middle; }
 .update-badge {
     margin-left: auto; font-size: 0.85rem; opacity: 0.6; align-self: flex-end;
 }
@@ -140,7 +136,7 @@ body.dark-theme .tab-btn.active { color: white; border-bottom-color: white; }
     margin-bottom: 1rem; text-transform: uppercase;
 }
 
-/* Общий контейнер для графика и часов */
+/* ЕДИНЫЙ СКРОЛЛ ДЛЯ ГРАФИКА И ЧАСОВ */
 .hourly-scroll-container {
     overflow-x: auto;
     overflow-y: visible;
@@ -148,33 +144,79 @@ body.dark-theme .tab-btn.active { color: white; border-bottom-color: white; }
     scrollbar-width: thin;
     -webkit-overflow-scrolling: touch;
 }
-.temp-chart-container {
-    margin-bottom: 0;
+
+.temp-chart-wrapper {
     min-width: max-content;
 }
+
 .temp-chart {
-    height: 150px;
-    min-width: 800px;
+    height: 130px;
     padding: 0.5rem 0;
 }
-.chart-svg { width: 100%; height: 100%; }
-.chart-line { fill: none; stroke: #4facfe; stroke-width: 2; }
-.chart-point { fill: #4facfe; }
+
+.chart-svg { 
+    width: 100%; 
+    height: 100%; 
+    display: block;
+}
+
+.chart-line { 
+    fill: none; 
+    stroke: #4facfe; 
+    stroke-width: 2.5; 
+}
+
+.chart-point { 
+    fill: #4facfe; 
+}
+
 .chart-label {
-    font-size: 1.1rem !important;
+    font-size: 1rem !important;
     font-weight: 600 !important;
-    fill: currentColor; opacity: 0.8;
+    fill: currentColor; 
+    opacity: 0.9;
     text-anchor: middle;
 }
 
-.forecast-scroll, .hourly-scroll {
+/* Часы строго под точками */
+.hourly-labels {
+    display: flex;
+    padding: 0.25rem 0 0.5rem;
+}
+
+.hourly-label-item {
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.hourly-label-time {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    margin-bottom: 0.25rem;
+}
+
+.hourly-label-icon {
+    width: 2.2rem;
+    height: 2.2rem;
+    margin: 0 auto;
+}
+
+.hourly-label-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.hourly-label-temp {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-top: 0.25rem;
+}
+
+.forecast-scroll {
     display: flex; gap: 0.75rem; overflow-x: auto;
     padding: 0.5rem 0.25rem 1.5rem;
     scrollbar-width: thin; -webkit-overflow-scrolling: touch;
-}
-.hourly-scroll {
-    min-width: 800px;
-    padding: 0.5rem 0.25rem 1rem;
 }
 .forecast-card {
     background: rgba(255,255,255,0.6); border-radius: 16px;
@@ -186,24 +228,14 @@ body.dark-theme .forecast-card {
 }
 .forecast-day { font-size: 0.9rem; font-weight: 500; }
 .forecast-date { font-size: 0.7rem; opacity: 0.5; margin-bottom: 0.5rem; }
-.forecast-icon, .hourly-icon {
+.forecast-icon {
     width: 2.5rem; height: 2.5rem; margin: 0.25rem auto;
 }
-body .forecast-icon img, body .hourly-icon img {
+.forecast-icon img {
     width: 100%; height: 100%; object-fit: contain;
 }
-body:not(.dark-theme) .forecast-icon img, body:not(.dark-theme) .hourly-icon img {
-    filter: none;
-}
-body.dark-theme .forecast-icon img, body.dark-theme .hourly-icon img {
-    filter: brightness(0.8);
-}
-.forecast-icon img, .hourly-icon img { width: 100%; height: 100%; object-fit: contain; }
 .forecast-temp-max { font-size: 1.3rem; font-weight: 450; }
 .forecast-temp-min { font-size: 0.85rem; opacity: 0.6; margin-top: 0.25rem; }
-.hourly-card { text-align: center; min-width: 70px; flex-shrink: 0; }
-.hourly-time { font-size: 0.9rem; opacity: 0.7; margin-bottom: 0.5rem; }
-.hourly-temp { font-size: 1.2rem; font-weight: 500; margin-top: 0.25rem; }
 
 .details-section {
     background: rgba(255,255,255,0.5); border-radius: 24px;
@@ -272,16 +304,26 @@ body.dark-theme .refresh-btn:hover {
     background: rgba(0,0,0,0.5);
 }
 
+/* МОБИЛЬНАЯ ВЕРСИЯ */
 @media (max-width: 600px) {
     .weather-background { 
-        height: 220px;  /* уменьшено с 380px */
+        height: 200px;
     }
     
     .app-header { 
-        padding: 0.75rem 1rem 0.75rem; 
-        min-height: 220px;
+        padding: 0.5rem 1rem 0.5rem; 
+        min-height: 200px;
         display: flex;
         flex-direction: column;
+    }
+    
+    .header-top-row {
+        margin-bottom: 0.25rem;
+    }
+    
+    .menu-btn {
+        width: 36px;
+        height: 36px;
     }
     
     .header-content {
@@ -292,19 +334,20 @@ body.dark-theme .refresh-btn:hover {
     }
     
     .content-area { padding: 1rem; }
-    .city-name { font-size: 1.8rem; }
-    .temp-current { font-size: 2.5rem; }
-    .feels-like { font-size: 0.9rem; }
+    .city-name { font-size: 1.6rem; }
+    .region-name { font-size: 0.85rem; }
+    .temp-current { font-size: 2.2rem; }
+    .feels-like { font-size: 0.85rem; }
     
     .weather-status-row { 
         flex-direction: column; 
         align-items: flex-start; 
-        gap: 0.5rem;
+        gap: 0.35rem;
         margin-top: 0.25rem;
     }
     
     .weather-desc { 
-        font-size: 1.4rem; 
+        font-size: 1.3rem; 
         width: 100%;
         display: flex;
         align-items: center;
@@ -312,115 +355,39 @@ body.dark-theme .refresh-btn:hover {
     }
     
     .weather-icon {
-        height: 1.8rem;
+        height: 1.6rem;
     }
     
     .update-badge { 
         align-self: flex-start; 
         margin-left: 0;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         width: 100%;
-        padding-top: 0.25rem;
+        padding-top: 0.2rem;
         border-top: 1px solid rgba(255,255,255,0.1);
     }
     
     .details-grid { grid-template-columns: repeat(2,1fr); }
     .forecast-card { min-width: 85px; padding: 0.75rem; }
     
-    /* Общий скролл для графика и часов */
-    .hourly-scroll-container {
-        overflow-x: auto;
-        overflow-y: visible;
-        padding-bottom: 1rem;
-        scrollbar-width: thin;
-        -webkit-overflow-scrolling: touch;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .temp-chart-container {
-        margin-bottom: 0;
-        width: fit-content;
-        min-width: 100%;
-    }
-    
     .temp-chart {
-        height: 120px;
-        min-width: 600px;
-        padding: 0.5rem 0;
-    }
-    
-    .hourly-scroll {
-        min-width: 600px;
-        padding: 0.5rem 0.25rem 1rem;
-        display: flex;
-        gap: 0.5rem;
-    }
-    
-    .hourly-card {
-        min-width: 60px;
-    }
-    
-    .hourly-time {
-        font-size: 0.8rem;
-    }
-    
-    .hourly-temp {
-        font-size: 1rem;
+        height: 110px;
     }
     
     .chart-label {
-        font-size: 0.9rem !important;
+        font-size: 0.85rem !important;
     }
-}
-/* Общий контейнер для графика и часов — единый скролл */
-.hourly-scroll-container {
-    overflow-x: auto;
-    overflow-y: visible;
-    padding-bottom: 1rem;
-    scrollbar-width: thin;
-    -webkit-overflow-scrolling: touch;
-}
-
-.temp-chart-container {
-    margin-bottom: 0;
-    width: fit-content;
-    min-width: 100%;
-}
-
-.temp-chart {
-    height: 150px;
-    min-width: 700px;
-    padding: 0.5rem 0;
-}
-
-.chart-svg { 
-    width: 100%; 
-    height: 100%; 
-    display: block;
-}
-
-.chart-line { 
-    fill: none; 
-    stroke: #4facfe; 
-    stroke-width: 2; 
-}
-
-.chart-point { 
-    fill: #4facfe; 
-}
-
-.chart-label {
-    font-size: 1.1rem !important;
-    font-weight: 600 !important;
-    fill: currentColor; 
-    opacity: 0.8;
-    text-anchor: middle;
-}
-
-.hourly-scroll {
-    min-width: 700px;
-    padding: 0.5rem 0.25rem 1rem;
-    display: flex;
-    gap: 0.75rem;
+    
+    .hourly-label-icon {
+        width: 1.8rem;
+        height: 1.8rem;
+    }
+    
+    .hourly-label-time {
+        font-size: 0.75rem;
+    }
+    
+    .hourly-label-temp {
+        font-size: 0.9rem;
+    }
 }

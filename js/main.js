@@ -4,9 +4,8 @@
           hView=document.getElementById('hourlyView'),
           errUI=document.getElementById('errorUI'),
           fScroll=document.getElementById('forecastScroll'),
-          hScroll=document.getElementById('hourlyScroll'),
           hTitle=document.getElementById('hourlyTitle'),
-          chart=document.getElementById('chartSvg'),
+          container=document.getElementById('hourlyScrollContainer'),
           backBtn=document.getElementById('backBtn'),
           city=document.getElementById('cityDisplay'),
           region=document.getElementById('regionDisplay'),
@@ -22,7 +21,6 @@
     function showContent(){loading.style.display='none'; fView.classList.remove('hidden'); hView.classList.remove('active'); errUI.style.display='none';}
     function showError(m){loading.style.display='none'; fView.classList.add('hidden'); hView.classList.remove('active'); errUI.style.display='flex'; document.getElementById('errorText').textContent=m;}
 
-    // Функция для получения дневной иконки (всегда солнце/облака, без луны)
     function getDayEmojiHtml(code) {
         if (emojiSet === 'fluent') {
             const f = FLUENT_SVG_MAP[code] || 'Cloud.svg';
@@ -31,79 +29,125 @@
         return SYSTEM_EMOJIS[code] || '🌡️';
     }
 
-    function drawChart(temps){
-    if(!chart||!temps.length)return;
-    const w = Math.max(700, temps.length * 55);  // 700 минимум, 55 на точку
-    chart.setAttribute('viewBox', `0 0 ${w} 150`);
-    
-    const pad = 45;
-    const h = 150;
-    const max = Math.max(...temps);
-    const min = Math.min(...temps);
-    const r = max - min || 1;
-    
-    const pts = temps.map((t, i) => ({
-        x: pad + (i / (temps.length - 1)) * (w - 2 * pad),
-        y: h - pad - ((t - min) / r) * (h - 2 * pad)
-    }));
-    
-    let path = `M ${pts[0].x} ${pts[0].y}`;
-    for(let i = 1; i < pts.length; i++) {
-        path += ` L ${pts[i].x} ${pts[i].y}`;
+    function buildHourlyChart(hours, temps) {
+        const itemWidth = 70;  // ширина одного часа в пикселях
+        const totalWidth = hours.length * itemWidth;
+        
+        const chartHeight = 130;
+        const padLeft = 35;
+        const padRight = 35;
+        const padTop = 20;
+        const padBottom = 15;
+        
+        const maxTemp = Math.max(...temps);
+        const minTemp = Math.min(...temps);
+        const tempRange = maxTemp - minTemp || 1;
+        
+        const chartAreaHeight = chartHeight - padTop - padBottom;
+        const chartAreaWidth = totalWidth - padLeft - padRight;
+        
+        // Строим точки
+        const points = temps.map((t, i) => {
+            const x = padLeft + (i / (hours.length - 1)) * chartAreaWidth;
+            const y = padTop + chartAreaHeight - ((t - minTemp) / tempRange) * chartAreaHeight;
+            return { x, y, temp: t };
+        });
+        
+        // Линия графика
+        let pathD = `M ${points[0].x} ${points[0].y}`;
+        for (let i = 1; i < points.length; i++) {
+            pathD += ` L ${points[i].x} ${points[i].y}`;
+        }
+        
+        // Кружки и подписи температур
+        let circles = '';
+        let tempLabels = '';
+        points.forEach(p => {
+            circles += `<circle cx="${p.x}" cy="${p.y}" r="4.5" class="chart-point"/>`;
+            tempLabels += `<text x="${p.x}" y="${p.y - 8}" class="chart-label">${Math.round(p.temp)}°</text>`;
+        });
+        
+        // SVG
+        const svg = `
+            <svg class="chart-svg" viewBox="0 0 ${totalWidth} ${chartHeight}" width="${totalWidth}" height="${chartHeight}">
+                <path d="${pathD}" class="chart-line"/>
+                ${circles}
+                ${tempLabels}
+            </svg>
+        `;
+        
+        // Подписи часов снизу
+        const labels = hours.map((h, i) => {
+            const timeStr = new Date(h.time).getHours() + ':00';
+            return `
+                <div class="hourly-label-item" style="width: ${itemWidth}px;">
+                    <div class="hourly-label-time">${timeStr}</div>
+                    <div class="hourly-label-icon">${getWeatherEmojiForTime(h.code, h.time)}</div>
+                    <div class="hourly-label-temp">${Math.round(h.temp)}°</div>
+                </div>
+            `;
+        }).join('');
+        
+        container.innerHTML = `
+            <div class="temp-chart-wrapper" style="width: ${totalWidth}px;">
+                <div class="temp-chart">${svg}</div>
+                <div class="hourly-labels" style="width: ${totalWidth}px;">${labels}</div>
+            </div>
+        `;
     }
-    
-    let circles = '', labels = '';
-    pts.forEach((p, i) => {
-        circles += `<circle cx="${p.x}" cy="${p.y}" r="5" class="chart-point"/>`;
-        labels += `<text x="${p.x}" y="${p.y - 10}" class="chart-label">${Math.round(temps[i])}°</text>`;
-    });
-    
-    chart.innerHTML = `<path d="${path}" class="chart-line"/>${circles}${labels}`;
- } 
 
     function showHourly(dayIdx){
-        if(!weatherData?.hourly)return;
-        const d=weatherData.daily, h=weatherData.hourly, target=d.time[dayIdx];
-        const hours=[], temps=[];
-        for(let i=0;i<h.time.length;i++) if(h.time[i].startsWith(target)){
-            hours.push({
-                time:h.time[i], 
-                temp:h.temperature_2m[i], 
-                code:h.weather_code[i]
-            });
-            temps.push(h.temperature_2m[i]);
+        if(!weatherData?.hourly) return;
+        const d = weatherData.daily;
+        const h = weatherData.hourly;
+        const target = d.time[dayIdx];
+        
+        const hours = [];
+        const temps = [];
+        
+        for (let i = 0; i < h.time.length; i++) {
+            if (h.time[i].startsWith(target)) {
+                hours.push({
+                    time: h.time[i],
+                    temp: h.temperature_2m[i],
+                    code: h.weather_code[i]
+                });
+                temps.push(h.temperature_2m[i]);
+            }
         }
-        if(!hours.length)return;
-        hTitle.textContent=new Date(target).toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
-        hScroll.innerHTML=hours.map(o=>`
-            <div class="hourly-card">
-                <div class="hourly-time">${new Date(o.time).getHours()}:00</div>
-                <div class="hourly-icon">${getWeatherEmojiForTime(o.code, o.time)}</div>
-                <div class="hourly-temp">${Math.round(o.temp)}°</div>
-            </div>
-        `).join('');
-        drawChart(temps);
-        fView.classList.add('hidden'); 
+        
+        if (!hours.length) return;
+        
+        hTitle.textContent = new Date(target).toLocaleDateString('ru-RU', {
+            weekday: 'long', day: 'numeric', month: 'long'
+        });
+        
+        buildHourlyChart(hours, temps);
+        
+        fView.classList.add('hidden');
         hView.classList.add('active');
     }
 
-    function updateUI(data,loc){
-        weatherData=data; 
-        const cur=data.current, d=data.daily;
-        city.textContent=loc.main; 
-        region.textContent=loc.region; 
-        coords.textContent=`${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
-        const code=cur.weather_code;
-        temp.textContent=`${Math.round(cur.temperature_2m)}°`;
-        feels.textContent=`Ощущается как ${Math.round(cur.apparent_temperature)}°`;
-        desc.innerHTML=`${getWeatherEmojiHtml(code)} ${getWeatherDescription(code)}`;
-        upd.textContent=`Обновлено: ${getCurrentTimeString()}`;
+    function updateUI(data, loc){
+        weatherData = data;
+        const cur = data.current;
+        const d = data.daily;
+        
+        city.textContent = loc.main;
+        region.textContent = loc.region;
+        coords.textContent = `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
+        
+        const code = cur.weather_code;
+        temp.textContent = `${Math.round(cur.temperature_2m)}°`;
+        feels.textContent = `Ощущается как ${Math.round(cur.apparent_temperature)}°`;
+        desc.innerHTML = `${getWeatherEmojiHtml(code)} ${getWeatherDescription(code)}`;
+        upd.textContent = `Обновлено: ${getCurrentTimeString()}`;
         updateBackground(code);
         
-        // 7-дневный прогноз - всегда дневные иконки
-        fScroll.innerHTML=d.time.map((t,i)=>{
-            const dt=new Date(t), name=i===0?'Сегодня':dt.toLocaleDateString('ru-RU',{weekday:'short'});
-            const date=dt.toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+        fScroll.innerHTML = d.time.map((t, i) => {
+            const dt = new Date(t);
+            const name = i === 0 ? 'Сегодня' : dt.toLocaleDateString('ru-RU', { weekday: 'short' });
+            const date = dt.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
             return `
                 <div class="forecast-card" data-day="${i}">
                     <div class="forecast-day">${name}</div>
@@ -114,33 +158,37 @@
                 </div>
             `;
         }).join('');
-        document.querySelectorAll('.forecast-card').forEach(c=>
-            c.addEventListener('click',()=>showHourly(+c.dataset.day))
+        
+        document.querySelectorAll('.forecast-card').forEach(c =>
+            c.addEventListener('click', () => showHourly(+c.dataset.day))
         );
     }
 
     async function loadWeatherData(forceRefresh = false){
         showLoading();
-        try{
-            const p=await requestLocation(); 
-            lat=p.lat; lon=p.lon;
+        try {
+            const p = await requestLocation();
+            lat = p.lat;
+            lon = p.lon;
             const [loc, data] = await Promise.all([
-                reverseGeocode(lat,lon), 
-                fetchWeatherData(lat,lon,forceRefresh)
+                reverseGeocode(lat, lon),
+                fetchWeatherData(lat, lon, forceRefresh)
             ]);
-            updateUI(data,loc); 
+            updateUI(data, loc);
             showContent();
-        }catch(e){showError(e.message);}
+        } catch (e) {
+            showError(e.message);
+        }
     }
 
     window.loadWeatherData = loadWeatherData;
-    backBtn.addEventListener('click',()=>{ 
-        fView.classList.remove('hidden'); 
-        hView.classList.remove('active'); 
+    backBtn.addEventListener('click', () => {
+        fView.classList.remove('hidden');
+        hView.classList.remove('active');
     });
-    document.getElementById('refreshBtn').addEventListener('click', ()=>loadWeatherData(true));
-    document.getElementById('errorRetryBtn').addEventListener('click', ()=>loadWeatherData(true));
-    initTheme(); 
-    initMenu(); 
+    document.getElementById('refreshBtn').addEventListener('click', () => loadWeatherData(true));
+    document.getElementById('errorRetryBtn').addEventListener('click', () => loadWeatherData(true));
+    initTheme();
+    initMenu();
     loadWeatherData();
 })();
