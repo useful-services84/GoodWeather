@@ -32,8 +32,11 @@
 
     function drawChart(temps, hoursCount){
         if(!chart||!temps.length)return;
+        
+        // Фиксированная ширина на каждую точку
         const pointWidth = 70;
-        const totalWidth = Math.max(hoursCount * pointWidth, 600);
+        const totalWidth = hoursCount * pointWidth;
+        
         chart.setAttribute('viewBox', `0 0 ${totalWidth} 150`);
         
         const pad = 45;
@@ -63,7 +66,10 @@
         const chartDiv = wrapper.querySelector('.temp-chart');
         const scrollDiv = wrapper.querySelector('.hourly-scroll');
         
+        // Устанавливаем точную ширину
+        chartDiv.style.width = totalWidth + 'px';
         chartDiv.style.minWidth = totalWidth + 'px';
+        scrollDiv.style.width = totalWidth + 'px';
         scrollDiv.style.minWidth = totalWidth + 'px';
     }
 
@@ -88,6 +94,7 @@
             weekday: 'long', day: 'numeric', month: 'long'
         });
         
+        // Каждая карточка имеет точную ширину 70px
         hScroll.innerHTML = hours.map(o => {
             const hour = new Date(o.time).getHours();
             return `
